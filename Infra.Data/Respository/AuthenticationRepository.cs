@@ -25,7 +25,7 @@ namespace Infra.Data.Respository
 
             if (user.SignInResultado.Succeeded)
             {
-                var passValid = await _authenticationService.VerifyPassword(senha, user.User.PasswordHash, user.User.Salt);
+                var passValid = await _authenticationService.VerifyPassword(senha, user.User!.PasswordHash, user.User.Salt);
 
                 if (user.User.Tentativas != null && user.User.Tentativas == 3)
                 {

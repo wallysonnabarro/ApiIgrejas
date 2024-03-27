@@ -18,7 +18,7 @@ namespace Service.Services
             if (!string.IsNullOrEmpty(token))
             {
                 var isValid = await _tokenService.TryValidateToken(token);
-                if (isValid.IdentidadeResultado.Succeeded)
+                if (isValid.IdentidadeResultado!.Succeeded)
                 {
                     return isValid;
                 }

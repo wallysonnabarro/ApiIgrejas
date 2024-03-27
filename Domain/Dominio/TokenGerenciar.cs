@@ -2,9 +2,9 @@
 {
     public class TokenGerenciar
     {
-        public required Identidade IdentidadeResultado { get; set; }
-        public required string Email { get; set; }
-        public required string Nome { get; set; }
+        public Identidade? IdentidadeResultado { get; set; }
+        public string? Email { get; set; }
+        public string? Nome { get; set; }
         public string? Role { get; set; }
     }
 }

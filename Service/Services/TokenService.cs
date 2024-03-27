@@ -19,8 +19,9 @@ namespace Service.Services
                 {
                     Subject = new ClaimsIdentity(new Claim[]
                     {
-                    new Claim(ClaimTypes.Name, user.Nome),
-                    new Claim(ClaimTypes.Role, user.Role.Nome)
+                        new Claim(ClaimTypes.Name, user.Nome),
+                        new Claim(ClaimTypes.Role, user.Role.Nome),
+                        new Claim(ClaimTypes.Email, user.Email)
                     }),
                     Expires = DateTime.UtcNow.AddHours(2),
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -42,7 +43,7 @@ namespace Service.Services
 
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var key = Encoding.ASCII.GetBytes(Settings.Secret);
-                TokenGerenciar tokenGerenciado;
+                TokenGerenciar tokenGerenciado = new TokenGerenciar();
 
                 try
                 {
@@ -70,13 +71,13 @@ namespace Service.Services
 
                     return Task.FromResult(tokenGerenciado);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     tokenGerenciado = new TokenGerenciar
                     {
                         Email = "",
-                        Nome =  "",
-                        IdentidadeResultado = Identidade.Failed(new IdentidadeError { Code = "403", Description = "Token Invalido." })
+                        Nome = "",
+                        IdentidadeResultado = Identidade.Failed(new IdentidadeError { Code = "403", Description = "Token Invalido. Mensagem: " + ex.Message })
                     };
                     return Task.FromResult<TokenGerenciar>(tokenGerenciado);
                 }

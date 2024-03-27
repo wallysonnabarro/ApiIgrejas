@@ -4,6 +4,7 @@ using Domain.DTOs;
 using Domain.Mappers;
 using Infra.Data.Context;
 using Infra.Data.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Service.Interface;
 
 namespace Infra.Data.Respository
@@ -71,9 +72,15 @@ namespace Infra.Data.Respository
             throw new NotImplementedException();
         }
 
-        public Task<ResultDynamic> GetUserByEmail(string email)
+        public async Task<ResultDynamic> GetUserByEmail(string email)
         {
-            throw new NotImplementedException();
+            Usuario? user = await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Email == email);
+
+            return new ResultDynamic
+            {
+                User = user,
+                SignInResultado = user == null ? SignInResultado.NotAllowed : SignInResultado.Success
+            };
         }
 
         public Task<ResultDynamic> GetUserByNome(string nome)
