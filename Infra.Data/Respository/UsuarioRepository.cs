@@ -93,11 +93,17 @@ namespace Infra.Data.Respository
             throw new NotImplementedException();
         }
 
+        private async Task<int> Count()
+        {
+            return await _context.Users.CountAsync();
+        }
 
         public async Task<Result<Paginacao<UsuarioListDto>>> Paginacao(PageWrapper wrapper)
         {
             try
             {
+                var page = wrapper.Skip == 0 ? 0 : wrapper.Skip - 1;
+
                 var lista = await _context.Users
                     .Include(x => x.TriboEquipe)
                     .Select(x => new UsuarioListDto
@@ -109,12 +115,14 @@ namespace Infra.Data.Respository
                         UserName = x.UserName,
                         PhoneNumber = x.PhoneNumber,
                     })
+                    .Skip(page * wrapper.PageSize)
+                    .Take(wrapper.PageSize)
                     .ToListAsync();
 
                 return Result<Paginacao<UsuarioListDto>>.Sucesso(new Paginacao<UsuarioListDto>
                 {
                     Dados = lista,
-                    Count = lista.Count,
+                    Count = await Count(),
                     PageIndex = wrapper.Skip == 0 ? 1 : wrapper.Skip,
                     PageSize = wrapper.PageSize
                 });

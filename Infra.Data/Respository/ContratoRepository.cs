@@ -65,5 +65,35 @@ namespace Infra.Data.Respository
 
             return Result<ContratoDto>.Success;
         }
+
+        private async Task<int> Count()
+        {
+            return await _contextDb.Contratos.CountAsync();
+        }
+
+        public async Task<Result<Paginacao<Contrato>>> Paginacao(PageWrapper wrapper)
+        {
+            try
+            {
+                var page = wrapper.Skip == 0 ? 0 : wrapper.Skip - 1;
+
+                var lista = await _contextDb.Contratos
+                    .Skip(page * wrapper.PageSize)
+                    .Take(wrapper.PageSize)
+                    .ToListAsync();
+
+                return Result<Paginacao<Contrato>>.Sucesso(new Paginacao<Contrato>
+                {
+                    Dados = lista,
+                    Count = await Count(),
+                    PageIndex = wrapper.Skip == 0 ? 1 : wrapper.Skip,
+                    PageSize = wrapper.PageSize
+                });
+            }
+            catch (Exception ex)
+            {
+                return Result<Paginacao<Contrato>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "V1" } });
+            }
+        }
     }
 }

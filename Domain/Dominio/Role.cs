@@ -1,6 +1,4 @@
-﻿using Domain.Dominio.menus;
-
-namespace Domain.Dominio
+﻿namespace Domain.Dominio
 {
     public class Role : IEntity
     {
@@ -8,6 +6,6 @@ namespace Domain.Dominio
         public required string Nome { get; set; }
 
         //navegação
-        public virtual ICollection<Grupos>? RoleGroups { get; set; }
+        public virtual ICollection<Transacao>? Transacoes { get; set; }
     }
 }

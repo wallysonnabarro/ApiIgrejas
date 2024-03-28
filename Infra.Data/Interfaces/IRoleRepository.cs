@@ -1,16 +1,18 @@
 ﻿using Domain.Dominio;
+using Domain.DTOs;
 
 namespace Infra.Data.Interfaces
 {
     public interface IRoleRepository
     {
-        public Task<Identidade> Delete(int id);
-        public Task<Role> Get(int id);
-        public Task<Role> Get(string name);
-        public Task<Identidade> Insert(Role roler);
-        public Task<Identidade> Insert(int tipo);
-        public Task<List<Role>> List();
-        public Task<Identidade> Update(Role roler);
-        public Task<bool> IsValid(string v);
+        Task<Identidade> Delete(int id);
+        Task<Role> Get(int id);
+        Task<Role> Get(string name);
+        Task<Identidade> Insert(PerfilDto roler);
+        Task<Identidade> Insert(int tipo);
+        Task<List<Role>> List();
+        Task<Identidade> Update(Role roler);
+        Task<bool> IsValid(string v);
+        Task<Result<Paginacao<PerfilListaPaginadaDto>>> Paginacao(PageWrapper wrapper);
     }
 }

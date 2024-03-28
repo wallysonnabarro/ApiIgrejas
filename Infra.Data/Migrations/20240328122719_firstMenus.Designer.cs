@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infra.Data.Migrations
 {
     [DbContext(typeof(ContextDb))]
-    [Migration("20240328112835_firstMenus")]
+    [Migration("20240328122719_firstMenus")]
     partial class firstMenus
     {
         /// <inheritdoc />
@@ -126,6 +126,55 @@ namespace Infra.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
+                });
+
+            modelBuilder.Entity("Domain.Dominio.Transacao", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DataCadastro")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("IdTransacaoPai")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Ordenacao")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Rota")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("StControle")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StFormulario")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StFuncao")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StMenu")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Transacaos");
                 });
 
             modelBuilder.Entity("Domain.Dominio.TriboEquipe", b =>
@@ -244,119 +293,19 @@ namespace Infra.Data.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Domain.Dominio.menus.Grupos", b =>
+            modelBuilder.Entity("RoleTransacao", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("RolesId")
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime?>("DataModificacao")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DtCriacao")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Grupo")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("IdUsuarioCriacao")
+                    b.Property<int>("TransacoesId")
                         .HasColumnType("int");
 
-                    b.Property<string>("JustificativaModificacao")
-                        .HasColumnType("nvarchar(max)");
+                    b.HasKey("RolesId", "TransacoesId");
 
-                    b.Property<string>("NomeUsuarioCriacao")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.HasIndex("TransacoesId");
 
-                    b.HasKey("Id");
-
-                    b.ToTable("Grupos");
-                });
-
-            modelBuilder.Entity("Domain.Dominio.menus.Menus", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Label")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Route")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("SubmenuId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SubmenuId");
-
-                    b.ToTable("Menus");
-                });
-
-            modelBuilder.Entity("Domain.Dominio.menus.Submenus.Submenu", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("GruposId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Label")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Route")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GruposId");
-
-                    b.ToTable("Submenus");
-                });
-
-            modelBuilder.Entity("GruposMenus", b =>
-                {
-                    b.Property<int>("GroupMenusId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MenuGroupsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("GroupMenusId", "MenuGroupsId");
-
-                    b.HasIndex("MenuGroupsId");
-
-                    b.ToTable("GruposMenus");
-                });
-
-            modelBuilder.Entity("GruposRole", b =>
-                {
-                    b.Property<int>("GroupRolesId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RoleGroupsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("GroupRolesId", "RoleGroupsId");
-
-                    b.HasIndex("RoleGroupsId");
-
-                    b.ToTable("GruposRole");
+                    b.ToTable("RoleTransacao");
                 });
 
             modelBuilder.Entity("Domain.Dominio.Contrato", b =>
@@ -397,58 +346,19 @@ namespace Infra.Data.Migrations
                     b.Navigation("TriboEquipe");
                 });
 
-            modelBuilder.Entity("Domain.Dominio.menus.Menus", b =>
-                {
-                    b.HasOne("Domain.Dominio.menus.Submenus.Submenu", null)
-                        .WithMany("MenuSubmenus")
-                        .HasForeignKey("SubmenuId");
-                });
-
-            modelBuilder.Entity("Domain.Dominio.menus.Submenus.Submenu", b =>
-                {
-                    b.HasOne("Domain.Dominio.menus.Grupos", null)
-                        .WithMany("GruposSubmenus")
-                        .HasForeignKey("GruposId");
-                });
-
-            modelBuilder.Entity("GruposMenus", b =>
-                {
-                    b.HasOne("Domain.Dominio.menus.Menus", null)
-                        .WithMany()
-                        .HasForeignKey("GroupMenusId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Dominio.menus.Grupos", null)
-                        .WithMany()
-                        .HasForeignKey("MenuGroupsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("GruposRole", b =>
+            modelBuilder.Entity("RoleTransacao", b =>
                 {
                     b.HasOne("Domain.Dominio.Role", null)
                         .WithMany()
-                        .HasForeignKey("GroupRolesId")
+                        .HasForeignKey("RolesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Dominio.menus.Grupos", null)
+                    b.HasOne("Domain.Dominio.Transacao", null)
                         .WithMany()
-                        .HasForeignKey("RoleGroupsId")
+                        .HasForeignKey("TransacoesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Domain.Dominio.menus.Grupos", b =>
-                {
-                    b.Navigation("GruposSubmenus");
-                });
-
-            modelBuilder.Entity("Domain.Dominio.menus.Submenus.Submenu", b =>
-                {
-                    b.Navigation("MenuSubmenus");
                 });
 #pragma warning restore 612, 618
         }

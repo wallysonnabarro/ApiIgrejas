@@ -6,5 +6,6 @@ namespace Infra.Data.Interfaces
     public interface IContratoRepository
     {
         Task<Result<ContratoDto>> NovoContrato(ContratoDto dto);
+        Task<Result<Paginacao<Contrato>>> Paginacao(PageWrapper wrapper);
     }
 }
