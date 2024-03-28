@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infra.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class first : Migration
+    public partial class firstMenus : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -52,20 +52,6 @@ namespace Infra.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Menus",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Label = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Route = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Menus", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Roles",
                 columns: table => new
                 {
@@ -76,20 +62,6 @@ namespace Infra.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Roles", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Submenus",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Label = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Route = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Submenus", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -131,75 +103,47 @@ namespace Infra.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "GroupMenu",
+                name: "Submenus",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    GruposId = table.Column<int>(type: "int", nullable: true),
-                    MenusId = table.Column<int>(type: "int", nullable: true)
+                    Label = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Route = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    GruposId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_GroupMenu", x => x.Id);
+                    table.PrimaryKey("PK_Submenus", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_GroupMenu_Grupos_GruposId",
+                        name: "FK_Submenus_Grupos_GruposId",
                         column: x => x.GruposId,
                         principalTable: "Grupos",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_GroupMenu_Menus_MenusId",
-                        column: x => x.MenusId,
-                        principalTable: "Menus",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "RolesGroups",
+                name: "GruposRole",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    GruposId = table.Column<int>(type: "int", nullable: true),
-                    RoleId = table.Column<int>(type: "int", nullable: true)
+                    GroupRolesId = table.Column<int>(type: "int", nullable: false),
+                    RoleGroupsId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RolesGroups", x => x.Id);
+                    table.PrimaryKey("PK_GruposRole", x => new { x.GroupRolesId, x.RoleGroupsId });
                     table.ForeignKey(
-                        name: "FK_RolesGroups_Grupos_GruposId",
-                        column: x => x.GruposId,
+                        name: "FK_GruposRole_Grupos_RoleGroupsId",
+                        column: x => x.RoleGroupsId,
                         principalTable: "Grupos",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_RolesGroups_Roles_RoleId",
-                        column: x => x.RoleId,
+                        name: "FK_GruposRole_Roles_GroupRolesId",
+                        column: x => x.GroupRolesId,
                         principalTable: "Roles",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "MenusSubmenus",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    MenusId = table.Column<int>(type: "int", nullable: true),
-                    SubmenuId = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MenusSubmenus", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_MenusSubmenus_Menus_MenusId",
-                        column: x => x.MenusId,
-                        principalTable: "Menus",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_MenusSubmenus_Submenus_SubmenuId",
-                        column: x => x.SubmenuId,
-                        principalTable: "Submenus",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -254,40 +198,74 @@ namespace Infra.Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Menus",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Label = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Route = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SubmenuId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Menus", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Menus_Submenus_SubmenuId",
+                        column: x => x.SubmenuId,
+                        principalTable: "Submenus",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "GruposMenus",
+                columns: table => new
+                {
+                    GroupMenusId = table.Column<int>(type: "int", nullable: false),
+                    MenuGroupsId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GruposMenus", x => new { x.GroupMenusId, x.MenuGroupsId });
+                    table.ForeignKey(
+                        name: "FK_GruposMenus_Grupos_MenuGroupsId",
+                        column: x => x.MenuGroupsId,
+                        principalTable: "Grupos",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_GruposMenus_Menus_GroupMenusId",
+                        column: x => x.GroupMenusId,
+                        principalTable: "Menus",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Contratos_EnderecoId",
                 table: "Contratos",
                 column: "EnderecoId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_GroupMenu_GruposId",
-                table: "GroupMenu",
-                column: "GruposId");
+                name: "IX_GruposMenus_MenuGroupsId",
+                table: "GruposMenus",
+                column: "MenuGroupsId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_GroupMenu_MenusId",
-                table: "GroupMenu",
-                column: "MenusId");
+                name: "IX_GruposRole_RoleGroupsId",
+                table: "GruposRole",
+                column: "RoleGroupsId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MenusSubmenus_MenusId",
-                table: "MenusSubmenus",
-                column: "MenusId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_MenusSubmenus_SubmenuId",
-                table: "MenusSubmenus",
+                name: "IX_Menus_SubmenuId",
+                table: "Menus",
                 column: "SubmenuId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RolesGroups_GruposId",
-                table: "RolesGroups",
+                name: "IX_Submenus_GruposId",
+                table: "Submenus",
                 column: "GruposId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RolesGroups_RoleId",
-                table: "RolesGroups",
-                column: "RoleId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_ContratoId",
@@ -309,25 +287,16 @@ namespace Infra.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "GroupMenu");
+                name: "GruposMenus");
 
             migrationBuilder.DropTable(
-                name: "MenusSubmenus");
-
-            migrationBuilder.DropTable(
-                name: "RolesGroups");
+                name: "GruposRole");
 
             migrationBuilder.DropTable(
                 name: "Users");
 
             migrationBuilder.DropTable(
                 name: "Menus");
-
-            migrationBuilder.DropTable(
-                name: "Submenus");
-
-            migrationBuilder.DropTable(
-                name: "Grupos");
 
             migrationBuilder.DropTable(
                 name: "Contratos");
@@ -339,7 +308,13 @@ namespace Infra.Data.Migrations
                 name: "TribosEquipes");
 
             migrationBuilder.DropTable(
+                name: "Submenus");
+
+            migrationBuilder.DropTable(
                 name: "Enderecos");
+
+            migrationBuilder.DropTable(
+                name: "Grupos");
         }
     }
 }

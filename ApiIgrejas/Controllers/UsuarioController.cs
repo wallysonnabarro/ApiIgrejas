@@ -3,6 +3,7 @@ using Domain.DTOs;
 using Infra.Data.Context;
 using Infra.Data.Interfaces;
 using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interface;
 using System.Net.Mime;
@@ -39,7 +40,7 @@ namespace ApiIgrejas.Controllers
         /// <returns></returns>
         [HttpPost("login")]
         [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType<Identidade>(StatusCodes.Status201Created)]
+        [ProducesResponseType<Identidade>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IResult> Login(LoginDTO loginDTO)
         {
@@ -88,6 +89,20 @@ namespace ApiIgrejas.Controllers
             {
                 var retorno = new TokenGerenciar().IdentidadeResultado = Identidade.Failed(new IdentidadeError { Code = "erro", Description = "Token vazio." });
                 return Results.Json(retorno);
+            }
+        }
+
+        [HttpPost("paginacao")]
+        //[Authorize]
+        public async Task<IActionResult> Paginar(PageWrapper dto)
+        {
+            if (dto != null)
+            {
+                return Accepted(await _userManager.Paginacao(dto));
+            }
+            else
+            {
+                return BadRequest("Dados inválidos.");
             }
         }
 

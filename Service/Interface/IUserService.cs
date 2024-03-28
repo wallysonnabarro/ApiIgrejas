@@ -1,4 +1,5 @@
 ﻿using Domain.Dominio;
+using Domain.DTOs;
 
 namespace Service.Interface
 {
@@ -6,7 +7,6 @@ namespace Service.Interface
     {
         Task<byte[]> GenerateSalt();
         Task<byte[]> GeneratePasswordHash(string password, byte[] salt);
-
         Task<Identidade> ValidarLogin(string username, string password);
     }
 }

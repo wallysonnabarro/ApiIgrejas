@@ -1,6 +1,4 @@
-﻿using Domain.Dominio.menus.Submenus;
-
-namespace Domain.Dominio.menus
+﻿namespace Domain.Dominio.menus
 {
     public class Menus : IEntity
     {
@@ -9,7 +7,6 @@ namespace Domain.Dominio.menus
         public required string Route { get; set; }
 
         //Navegação
-        public virtual ICollection<GroupMenu> MenuGroups { get; set; }
-        public virtual ICollection<MenuSubmenu> SubmenusMenu { get; set; }
+        public virtual ICollection<Grupos>? MenuGroups { get; set; }
     }
 }

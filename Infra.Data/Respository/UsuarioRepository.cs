@@ -92,5 +92,37 @@ namespace Infra.Data.Respository
         {
             throw new NotImplementedException();
         }
+
+
+        public async Task<Result<Paginacao<UsuarioListDto>>> Paginacao(PageWrapper wrapper)
+        {
+            try
+            {
+                var lista = await _context.Users
+                    .Include(x => x.TriboEquipe)
+                    .Select(x => new UsuarioListDto
+                    {
+                        Cpf = x.Cpf,
+                        Email = x.Email,
+                        Nome = x.Nome,
+                        TriboEquipe = x.TriboEquipe,
+                        UserName = x.UserName,
+                        PhoneNumber = x.PhoneNumber,
+                    })
+                    .ToListAsync();
+
+                return Result<Paginacao<UsuarioListDto>>.Sucesso(new Paginacao<UsuarioListDto>
+                {
+                    Dados = lista,
+                    Count = lista.Count,
+                    PageIndex = wrapper.Skip == 0 ? 1 : wrapper.Skip,
+                    PageSize = wrapper.PageSize
+                });
+            }
+            catch (Exception ex)
+            {
+                return Result<Paginacao<UsuarioListDto>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "V1" } });
+            }
+        }
     }
 }

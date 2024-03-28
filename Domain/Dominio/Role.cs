@@ -7,6 +7,7 @@ namespace Domain.Dominio
         public int Id { get; set; }
         public required string Nome { get; set; }
 
-        public virtual ICollection<RoleGroup>? RoleGroups { get; set; }
+        //navegação
+        public virtual ICollection<Grupos>? RoleGroups { get; set; }
     }
 }

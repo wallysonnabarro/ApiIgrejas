@@ -16,12 +16,14 @@ namespace Infra.CrossCutting.IoC
             services.AddScoped<IUsuarioRepository, UsuarioRepository>();
             services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
             services.AddScoped<IRoleRepository, RolerRepository>();
+            services.AddScoped<IGrupoRepository, GrupoRepository>();
 
             //scoped services
             services.AddScoped<IAuthenticationServices, AuthenticationService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IAuthorization, Authorization>();
+            services.AddScoped<IGrupoService, GrupoService>();
 
             //AutoMapper
             services.AddAutoMapper(typeof(ContratoProfile));

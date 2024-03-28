@@ -1,4 +1,6 @@
-﻿namespace Domain.Dominio.menus
+﻿using Domain.Dominio.menus.Submenus;
+
+namespace Domain.Dominio.menus
 {
     public class Grupos : IEntity
     {
@@ -11,7 +13,8 @@
         public string? JustificativaModificacao { get; set; }
 
         //Navegação
-        public virtual ICollection<GroupMenu> GroupMenus { get; set; }
-        public virtual ICollection<RoleGroup> GroupRoles { get; set; }
+        public virtual required ICollection<Menus> GroupMenus { get; set; }
+        public virtual ICollection<Submenu>? GruposSubmenus { get; set; }
+        public virtual ICollection<Role>? GroupRoles { get; set; }
     }
 }

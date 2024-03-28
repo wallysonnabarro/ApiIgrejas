@@ -12,5 +12,6 @@ namespace Infra.Data.Interfaces
         public void AddRoleToUser(decimal userId, Role role);
 
         public Task<Identidade> UpdateAcessLock(int id);
+        Task<Result<Paginacao<UsuarioListDto>>> Paginacao(PageWrapper wrapper);
     }
 }

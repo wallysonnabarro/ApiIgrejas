@@ -241,29 +241,6 @@ namespace Infra.Data.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Domain.Dominio.menus.GroupMenu", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("GruposId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("MenusId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GruposId");
-
-                    b.HasIndex("MenusId");
-
-                    b.ToTable("GroupMenu");
-                });
-
             modelBuilder.Entity("Domain.Dominio.menus.Grupos", b =>
                 {
                     b.Property<int>("Id")
@@ -313,55 +290,14 @@ namespace Infra.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
-
-                    b.ToTable("Menus");
-                });
-
-            modelBuilder.Entity("Domain.Dominio.menus.RoleGroup", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("GruposId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("RoleId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GruposId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("RolesGroups");
-                });
-
-            modelBuilder.Entity("Domain.Dominio.menus.Submenus.MenuSubmenu", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("MenusId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("SubmenuId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MenusId");
-
                     b.HasIndex("SubmenuId");
 
-                    b.ToTable("MenusSubmenus");
+                    b.ToTable("Menus");
                 });
 
             modelBuilder.Entity("Domain.Dominio.menus.Submenus.Submenu", b =>
@@ -371,6 +307,9 @@ namespace Infra.Data.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("GruposId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Label")
                         .IsRequired()
@@ -382,7 +321,39 @@ namespace Infra.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("GruposId");
+
                     b.ToTable("Submenus");
+                });
+
+            modelBuilder.Entity("GruposMenus", b =>
+                {
+                    b.Property<int>("GroupMenusId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MenuGroupsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("GroupMenusId", "MenuGroupsId");
+
+                    b.HasIndex("MenuGroupsId");
+
+                    b.ToTable("GruposMenus");
+                });
+
+            modelBuilder.Entity("GruposRole", b =>
+                {
+                    b.Property<int>("GroupRolesId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RoleGroupsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("GroupRolesId", "RoleGroupsId");
+
+                    b.HasIndex("RoleGroupsId");
+
+                    b.ToTable("GruposRole");
                 });
 
             modelBuilder.Entity("Domain.Dominio.Contrato", b =>
@@ -423,56 +394,53 @@ namespace Infra.Data.Migrations
                     b.Navigation("TriboEquipe");
                 });
 
-            modelBuilder.Entity("Domain.Dominio.menus.GroupMenu", b =>
+            modelBuilder.Entity("Domain.Dominio.menus.Menus", b =>
                 {
-                    b.HasOne("Domain.Dominio.menus.Grupos", null)
-                        .WithMany("GroupMenus")
-                        .HasForeignKey("GruposId");
-
-                    b.HasOne("Domain.Dominio.menus.Menus", null)
-                        .WithMany("MenuGroups")
-                        .HasForeignKey("MenusId");
-                });
-
-            modelBuilder.Entity("Domain.Dominio.menus.RoleGroup", b =>
-                {
-                    b.HasOne("Domain.Dominio.menus.Grupos", null)
-                        .WithMany("GroupRoles")
-                        .HasForeignKey("GruposId");
-
-                    b.HasOne("Domain.Dominio.Role", null)
-                        .WithMany("RoleGroups")
-                        .HasForeignKey("RoleId");
-                });
-
-            modelBuilder.Entity("Domain.Dominio.menus.Submenus.MenuSubmenu", b =>
-                {
-                    b.HasOne("Domain.Dominio.menus.Menus", null)
-                        .WithMany("SubmenusMenu")
-                        .HasForeignKey("MenusId");
-
                     b.HasOne("Domain.Dominio.menus.Submenus.Submenu", null)
                         .WithMany("MenuSubmenus")
                         .HasForeignKey("SubmenuId");
                 });
 
-            modelBuilder.Entity("Domain.Dominio.Role", b =>
+            modelBuilder.Entity("Domain.Dominio.menus.Submenus.Submenu", b =>
                 {
-                    b.Navigation("RoleGroups");
+                    b.HasOne("Domain.Dominio.menus.Grupos", null)
+                        .WithMany("GruposSubmenus")
+                        .HasForeignKey("GruposId");
+                });
+
+            modelBuilder.Entity("GruposMenus", b =>
+                {
+                    b.HasOne("Domain.Dominio.menus.Menus", null)
+                        .WithMany()
+                        .HasForeignKey("GroupMenusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Dominio.menus.Grupos", null)
+                        .WithMany()
+                        .HasForeignKey("MenuGroupsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("GruposRole", b =>
+                {
+                    b.HasOne("Domain.Dominio.Role", null)
+                        .WithMany()
+                        .HasForeignKey("GroupRolesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Dominio.menus.Grupos", null)
+                        .WithMany()
+                        .HasForeignKey("RoleGroupsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Domain.Dominio.menus.Grupos", b =>
                 {
-                    b.Navigation("GroupMenus");
-
-                    b.Navigation("GroupRoles");
-                });
-
-            modelBuilder.Entity("Domain.Dominio.menus.Menus", b =>
-                {
-                    b.Navigation("MenuGroups");
-
-                    b.Navigation("SubmenusMenu");
+                    b.Navigation("GruposSubmenus");
                 });
 
             modelBuilder.Entity("Domain.Dominio.menus.Submenus.Submenu", b =>

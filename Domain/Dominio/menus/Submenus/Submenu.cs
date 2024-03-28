@@ -6,6 +6,7 @@
         public required string Label { get; set; }
         public required string Route { get; set; }
 
-        public virtual ICollection<MenuSubmenu> MenuSubmenus { get; set; }
+        //navegação
+        public virtual ICollection<Menus>? MenuSubmenus { get; set; }
     }
 }
