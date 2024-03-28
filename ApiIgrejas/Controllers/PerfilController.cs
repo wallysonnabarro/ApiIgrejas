@@ -28,5 +28,11 @@ namespace ApiIgrejas.Controllers
         {
             return Accepted(await _roleRepository.Paginacao(dto));
         }
+
+        [HttpPost("update-perfil")]
+        public async Task<IActionResult> UpdatePerfil(UpdatePerfilDto dto)
+        {
+            return Accepted(await _roleRepository.Update(dto));
+        }
     }
 }

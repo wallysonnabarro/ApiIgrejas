@@ -48,6 +48,7 @@ namespace Infra.Data.Respository
                 var novo = new Role
                 {
                     Nome = roler.Nome,
+                    Status = 1,
                     Transacoes = listaTransacao,
                 };
 
@@ -126,12 +127,21 @@ namespace Infra.Data.Respository
             }
         }
 
-        public async Task<Identidade> Update(Role roler)
+        public async Task<Identidade> Update(UpdatePerfilDto roler)
         {
             try
             {
-                var role = await _context.Roles.FirstOrDefaultAsync(r => r.Id == roler.Id);
+                var role = await _context.Roles
+                    .Include(x => x.Transacoes)
+                    .FirstOrDefaultAsync(r => r.Id == roler.Id);
+
+                if (role == null) return Identidade.Failed(new IdentidadeError() { Code = "error", Description = "Perfil não encontrado." });
+
+                var perfis = await _context.Transacaos.Where(x => roler.Transacoes.Contains(x.Id)).ToListAsync();
+
                 role.Nome = roler.Nome;
+                role.Status = roler.Status;
+                role.Transacoes = perfis;
 
                 _context.Roles.Update(role);
                 _context.SaveChanges();

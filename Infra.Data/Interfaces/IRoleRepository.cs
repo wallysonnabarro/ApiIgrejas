@@ -11,7 +11,7 @@ namespace Infra.Data.Interfaces
         Task<Identidade> Insert(PerfilDto roler);
         Task<Identidade> Insert(int tipo);
         Task<List<Role>> List();
-        Task<Identidade> Update(Role roler);
+        Task<Identidade> Update(UpdatePerfilDto roler);
         Task<bool> IsValid(string v);
         Task<Result<Paginacao<PerfilListaPaginadaDto>>> Paginacao(PageWrapper wrapper);
     }
