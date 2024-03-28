@@ -23,5 +23,17 @@ namespace ApiIgrejas.Controllers
 
             return Created("Result", result);
         }
+
+        [HttpPost("listar-contratos")]
+        public async Task<IActionResult> ListarContratos(PageWrapper wrapper)
+        {
+            return Accepted(await _contratoRepository.Paginacao(wrapper));
+        }
+
+        [HttpPost("update/{id}")]
+        public async Task<IActionResult> UpdateContrato(ContratoDto dto, int id)
+        {
+            return Accepted(await _contratoRepository.Update(dto, id));
+        }
     }
 }

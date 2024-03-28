@@ -27,6 +27,9 @@ namespace Domain.Mappers
                 .ForMember(d => d.Ibge, opt => opt.MapFrom(src => src.Ibge))
                 .ForMember(d => d.Gia, opt => opt.MapFrom(src => src.Gia))
                 .ForMember(d => d.Ddd, opt => opt.MapFrom(src => src.Ddd))
+                .ForMember(d => d.Registro, opt => opt.MapFrom(src => src.Registro))
+                .ForMember(d => d.Vencimento, opt => opt.MapFrom(src => src.Vencimento))
+                .ForMember(d => d.Status, opt => opt.MapFrom(src => src.Status))
                 .ForMember(d => d.Siafi, opt => opt.MapFrom(src => src.Siafi));
 
             ///<summary>
@@ -38,6 +41,9 @@ namespace Domain.Mappers
                 .ForMember(d => d.CNPJ, opt => opt.MapFrom(src => src.CNPJ))
                 .ForMember(d => d.Responsavel, opt => opt.MapFrom(src => src.Responsavel))
                 .ForMember(d => d.Telefone, opt => opt.MapFrom(src => src.Telefone))
+                .ForMember(d => d.Registro, opt => opt.MapFrom(src => src.Registro))
+                .ForMember(d => d.Vencimento, opt => opt.MapFrom(src => src.Vencimento))
+                .ForMember(d => d.Status, opt => opt.MapFrom(src => src.Status))
                 .ForMember(d => d.Endereco, opt => opt.MapFrom(src =>
                 new Endereco
                 {

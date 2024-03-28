@@ -8,6 +8,9 @@
         public required string CNPJ { get; set; }
         public required string Responsavel { get; set; }
         public required string Telefone { get; set; }
+        public required DateTime Registro { get; set; }
+        public required DateTime Vencimento { get; set; }
+        public required int Status { get; set; }
 
 
         //navegação
