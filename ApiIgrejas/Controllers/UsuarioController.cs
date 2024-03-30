@@ -5,6 +5,7 @@ using Infra.Data.Interfaces;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Service.Interface;
 using System.Net.Mime;
 
@@ -106,9 +107,9 @@ namespace ApiIgrejas.Controllers
             }
         }
 
-        /// <summary>
-        /// Este endpoint, deverá ser removido na publicação.
-        /// </summary>
+        // <summary>
+        // Este endpoint, deverá ser removido na publicação.
+        // </summary>
         //[HttpGet("cadastro-develope")]
         //public async Task<Identidade> CadastroDeveloper()
         //{
