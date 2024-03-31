@@ -6,6 +6,8 @@ using Infra.Data.Context;
 using Infra.Data.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Service.Interface;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace Infra.Data.Respository
 {
@@ -72,13 +74,19 @@ namespace Infra.Data.Respository
             throw new NotImplementedException();
         }
 
-        public async Task<ResultDynamic> GetUserByEmail(string email)
+        public async Task<SigniInUsuarioDto> GetUserByEmail(string email)
         {
-            Usuario? user = await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Email == email);
+            Usuario? user = await _context.Users.Include(u => u.Role.Transacoes).FirstOrDefaultAsync(u => u.Email == email);
 
-            return new ResultDynamic
+            return new SigniInUsuarioDto
             {
                 User = user,
+                Role = user == null ? null : new PerfilListaPaginadaDto
+                {
+                    Nome = user.Role.Nome,
+                    Id = user.Role.Id,
+                    Transacoes = user.Role.Transacoes
+                },
                 SignInResultado = user == null ? SignInResultado.NotAllowed : SignInResultado.Success
             };
         }
@@ -106,6 +114,7 @@ namespace Infra.Data.Respository
 
                 var lista = await _context.Users
                     .Include(x => x.TriboEquipe)
+                    .Include(x => x.Role.Transacoes)
                     .Select(x => new UsuarioListDto
                     {
                         Cpf = x.Cpf,
@@ -114,6 +123,12 @@ namespace Infra.Data.Respository
                         TriboEquipe = x.TriboEquipe,
                         UserName = x.UserName,
                         PhoneNumber = x.PhoneNumber,
+                        Role = new PerfilListaPaginadaDto
+                        {
+                            Nome = x.Role.Nome,
+                            Id = x.Role.Id,
+                            Transacoes = x.Role.Transacoes
+                        }
                     })
                     .Skip(page * wrapper.PageSize)
                     .Take(wrapper.PageSize)

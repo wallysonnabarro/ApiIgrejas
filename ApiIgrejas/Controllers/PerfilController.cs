@@ -34,5 +34,11 @@ namespace ApiIgrejas.Controllers
         {
             return Accepted(await _roleRepository.Update(dto));
         }
+
+        [HttpPost("perfil")]
+        public async Task<IActionResult> Perfil(PerfilUnicoDto dto)
+        {
+            return Accepted(await _roleRepository.Get(dto.Perfils));
+        }
     }
 }

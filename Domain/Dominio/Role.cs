@@ -7,6 +7,6 @@
         public int Status { get; set; }
 
         //navegação
-        public virtual ICollection<Transacao>? Transacoes { get; set; }
+        public virtual ICollection<Transacao> Transacoes { get; set; }
     }
 }

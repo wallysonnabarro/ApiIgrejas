@@ -37,7 +37,17 @@ namespace Infra.Data.Respository
 
         public async Task<Role> Get(int id) => await _context.Roles.FirstOrDefaultAsync(r => r.Id == id);
 
-        public async Task<Role> Get(string name) => await _context.Roles.FirstOrDefaultAsync(r => r.Nome == name);
+        public async Task<PerfilListaPaginadaDto> Get(string name)
+        {
+            return await _context.Roles
+                    .Include(x => x.Transacoes)
+                    .Select(x => new PerfilListaPaginadaDto
+                    {
+                        Nome = x.Nome,
+                        Id = x.Id,
+                        Transacoes = x.Transacoes!
+                    }).FirstOrDefaultAsync(r => r.Nome == name);                    
+        }
 
         public async Task<Identidade> Insert(PerfilDto roler)
         {

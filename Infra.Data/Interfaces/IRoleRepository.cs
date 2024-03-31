@@ -7,7 +7,7 @@ namespace Infra.Data.Interfaces
     {
         Task<Identidade> Delete(int id);
         Task<Role> Get(int id);
-        Task<Role> Get(string name);
+        Task<PerfilListaPaginadaDto> Get(string name);
         Task<Identidade> Insert(PerfilDto roler);
         Task<Identidade> Insert(int tipo);
         Task<List<Role>> List();

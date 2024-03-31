@@ -3,9 +3,7 @@ using Domain.DTOs;
 using Infra.Data.Context;
 using Infra.Data.Interfaces;
 using Microsoft.AspNetCore.Antiforgery;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Service.Interface;
 using System.Net.Mime;
 
