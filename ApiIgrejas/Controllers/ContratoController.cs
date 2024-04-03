@@ -1,10 +1,11 @@
 ﻿using Domain.DTOs;
 using Infra.Data.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ApiIgrejas.Controllers
 {
-    //[Authorize]
+    [Authorize(Roles = "DESENVOLVEDOR")]
     [Route("api/[controller]")]
     [ApiController]
     public class ContratoController : ControllerBase

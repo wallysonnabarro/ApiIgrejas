@@ -6,8 +6,6 @@ using Infra.Data.Context;
 using Infra.Data.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Service.Interface;
-using System.Text.Json.Serialization;
-using System.Text.Json;
 
 namespace Infra.Data.Respository
 {
@@ -96,9 +94,13 @@ namespace Infra.Data.Respository
             throw new NotImplementedException();
         }
 
-        public Task<Identidade> UpdateAcessLock(int id)
+        public async Task<Identidade> UpdateAcessLock(int id)
         {
-            throw new NotImplementedException();
+            var user = await _context.Users.FirstAsync(u => u.Id == id);
+            user.Tentativas = user.Tentativas == null ? 1 : user.Tentativas++;
+            _context.SaveChanges();
+
+            return Identidade.Success;
         }
 
         private async Task<int> Count()
