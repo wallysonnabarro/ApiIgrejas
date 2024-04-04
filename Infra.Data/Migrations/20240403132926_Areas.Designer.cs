@@ -4,6 +4,7 @@ using Infra.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infra.Data.Migrations
 {
     [DbContext(typeof(ContextDb))]
-    partial class ContextDbModelSnapshot : ModelSnapshot
+    [Migration("20240403132926_Areas")]
+    partial class Areas
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -132,107 +135,6 @@ namespace Infra.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Enderecos");
-                });
-
-            modelBuilder.Entity("Domain.Dominio.FichaConectado", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Cep")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ContatoEmergencial")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("Crianca")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("Cuidados")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("DescricaoCuidados")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Endereco")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("EstadoCivil")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Idade")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Lider")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("Nascimento")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Sexo")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SiaoId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Telefone")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TriboId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SiaoId");
-
-                    b.HasIndex("TriboId");
-
-                    b.ToTable("FichasConectados");
-                });
-
-            modelBuilder.Entity("Domain.Dominio.FichaLider", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Sexo")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SiaoId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TriboId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SiaoId");
-
-                    b.HasIndex("TriboId");
-
-                    b.ToTable("FichasLider");
                 });
 
             modelBuilder.Entity("Domain.Dominio.Role", b =>
@@ -477,44 +379,6 @@ namespace Infra.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Endereco");
-                });
-
-            modelBuilder.Entity("Domain.Dominio.FichaConectado", b =>
-                {
-                    b.HasOne("Domain.Dominio.Siao", "Siao")
-                        .WithMany()
-                        .HasForeignKey("SiaoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Dominio.TriboEquipe", "Tribo")
-                        .WithMany()
-                        .HasForeignKey("TriboId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Siao");
-
-                    b.Navigation("Tribo");
-                });
-
-            modelBuilder.Entity("Domain.Dominio.FichaLider", b =>
-                {
-                    b.HasOne("Domain.Dominio.Siao", "Siao")
-                        .WithMany()
-                        .HasForeignKey("SiaoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Dominio.TriboEquipe", "Tribo")
-                        .WithMany()
-                        .HasForeignKey("TriboId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Siao");
-
-                    b.Navigation("Tribo");
                 });
 
             modelBuilder.Entity("Domain.Dominio.Usuario", b =>

@@ -19,6 +19,8 @@ namespace Infra.CrossCutting.IoC
             services.AddScoped<ITransacaoRepository, TransacaoRepository>();
             services.AddScoped<ITriboEquipesRepository, TriboEquipesRepository>();
             services.AddScoped<ISiaoRepository, SiaoRepository>();
+            services.AddScoped<IAreasRepository, AreasRepository>();
+            services.AddScoped<IFichaRepository, FichaRepository>();
 
             //scoped services
             services.AddScoped<IAuthenticationServices, AuthenticationService>();

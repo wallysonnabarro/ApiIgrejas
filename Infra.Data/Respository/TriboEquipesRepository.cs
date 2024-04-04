@@ -52,6 +52,19 @@ namespace Infra.Data.Respository
             }
         }
 
+        public async Task<Result<List<TriboSelectede>>> ListaSelected()
+        {
+            var tribo = await _db.TribosEquipes.Select(r => new TriboSelectede { Nome = r.Nome, Id = r.Id}).ToListAsync();
+            if (tribo != null)
+            {
+                return Result<List<TriboSelectede>>.Sucesso(tribo);
+            }
+            else
+            {
+                return Result<List<TriboSelectede>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Não foram localizadas tribos ou equipes. Por favor, entre em contato com o resposável do evento.", ocorrencia = "", versao = "V1" } });
+            }
+        }
+
         public async Task<Result<TriboEquipe>> Novo(TriboNovoDto dto)
         {
             var tribo = await _db.TribosEquipes.FirstOrDefaultAsync(x => x.Nome.Equals(dto.Nome));

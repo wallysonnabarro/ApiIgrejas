@@ -4,6 +4,7 @@ using Infra.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infra.Data.Migrations
 {
     [DbContext(typeof(ContextDb))]
-    partial class ContextDbModelSnapshot : ModelSnapshot
+    [Migration("20240403185632_Fichas")]
+    partial class Fichas
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -186,9 +189,6 @@ namespace Infra.Data.Migrations
                     b.Property<int>("Sexo")
                         .HasColumnType("int");
 
-                    b.Property<int>("SiaoId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Telefone")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -197,8 +197,6 @@ namespace Infra.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("SiaoId");
 
                     b.HasIndex("TriboId");
 
@@ -220,15 +218,10 @@ namespace Infra.Data.Migrations
                     b.Property<int>("Sexo")
                         .HasColumnType("int");
 
-                    b.Property<int>("SiaoId")
-                        .HasColumnType("int");
-
                     b.Property<int>("TriboId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("SiaoId");
 
                     b.HasIndex("TriboId");
 
@@ -481,38 +474,22 @@ namespace Infra.Data.Migrations
 
             modelBuilder.Entity("Domain.Dominio.FichaConectado", b =>
                 {
-                    b.HasOne("Domain.Dominio.Siao", "Siao")
-                        .WithMany()
-                        .HasForeignKey("SiaoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Domain.Dominio.TriboEquipe", "Tribo")
                         .WithMany()
                         .HasForeignKey("TriboId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Siao");
 
                     b.Navigation("Tribo");
                 });
 
             modelBuilder.Entity("Domain.Dominio.FichaLider", b =>
                 {
-                    b.HasOne("Domain.Dominio.Siao", "Siao")
-                        .WithMany()
-                        .HasForeignKey("SiaoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Domain.Dominio.TriboEquipe", "Tribo")
                         .WithMany()
                         .HasForeignKey("TriboId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Siao");
 
                     b.Navigation("Tribo");
                 });

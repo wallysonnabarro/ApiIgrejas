@@ -10,5 +10,6 @@ namespace Infra.Data.Interfaces
         Task<Result<bool>> Editar(Siao siao);
         Task<Result<bool>> EditarStatus(int id, int status);
         Task<Result<Siao>> Detalhar(int id);
+        Task<Result<List<EventosAtivosDto>>> GetEmIniciado();
     }
 }

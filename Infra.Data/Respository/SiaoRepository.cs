@@ -89,6 +89,27 @@ namespace Infra.Data.Respository
             }
         }
 
+        public async Task<Result<List<EventosAtivosDto>>> GetEmIniciado()
+        {
+            try
+            {
+                var siao = await _db.Siaos.Where(s => (s.Status == 1 || s.Status == 4))
+                    .Select(s => new EventosAtivosDto { Nome = s.Evento, Id = s.Id }).ToListAsync();
+                if (siao == null)
+                {
+                    return Result<List<EventosAtivosDto>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Nenhum evento ativo.", ocorrencia = "", versao = "V1" } });
+                }
+                else
+                {
+                    return Result<List<EventosAtivosDto>>.Sucesso(siao);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Result<List<EventosAtivosDto>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "V1" } });
+            }
+        }
+
         public async Task<Result<bool>> Novo(SiaoNovoDto dto)
         {
             try
@@ -129,6 +150,7 @@ namespace Infra.Data.Respository
                 var lista = await _db.Siaos
                     .Skip(page * wrapper.PageSize)
                     .Take(wrapper.PageSize)
+                    .OrderByDescending(x => x.Id)
                     .ToListAsync();
 
                 return Result<Paginacao<Siao>>.Sucesso(new Paginacao<Siao>
