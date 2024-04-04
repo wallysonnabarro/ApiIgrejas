@@ -1,5 +1,4 @@
 ﻿using Domain.Dominio;
-using Microsoft.AspNetCore.Http;
 using Service.Interface;
 
 namespace Service.Services
@@ -32,7 +31,7 @@ namespace Service.Services
             if (!string.IsNullOrEmpty(token))
             {
                 var isValid = await _tokenService.TryValidateToken(token);
-                if (isValid.IdentidadeResultado.Succeeded)
+                if (isValid.IdentidadeResultado!.Succeeded)
                 {
                     return isValid;
                 }

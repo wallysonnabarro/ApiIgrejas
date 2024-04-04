@@ -19,5 +19,6 @@ namespace Infra.Data.Context
         public DbSet<Area> AreasSet { get; set; }
         public DbSet<FichaConectado> FichasConectados { get; set; }
         public DbSet<FichaLider> FichasLider { get; set; }
+        public DbSet<Pagamento> Pagamentos { get; set; }
     }
 }

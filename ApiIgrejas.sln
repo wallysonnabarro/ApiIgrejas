@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34701.34
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiIgrejas", "ApiIgrejas\ApiIgrejas.csproj", "{239467BB-F748-4115-9826-C4DF5DB337B6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiIgrejas", "ApiIgrejas\ApiIgrejas.csproj", "{239467BB-F748-4115-9826-C4DF5DB337B6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 Aplicacao", "1 Aplicacao", "{C19BFF1D-4DFC-4E42-BB17-788EF87F2519}"
 EndProject
@@ -15,21 +15,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4 Infra", "4 Infra", "{72FE
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5 Testes", "5 Testes", "{52D55071-4CCE-4010-9588-027D1DD723B3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{6A6E0C82-7C0E-45BE-9C2E-FE7A855BE0FF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "Domain\Domain.csproj", "{6A6E0C82-7C0E-45BE-9C2E-FE7A855BE0FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service", "Service\Service.csproj", "{B75F5CD8-7D9A-486F-94EB-A018C37D6D43}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Service", "Service\Service.csproj", "{B75F5CD8-7D9A-486F-94EB-A018C37D6D43}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4.1 Data", "4.1 Data", "{E73C203C-52CA-4E57-9A27-9749D98D572A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4.2 CrossCutting", "4.2 CrossCutting", "{4D572A83-61ED-4725-9C6D-613A2BD822EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infra.Data", "Infra.Data\Infra.Data.csproj", "{98976211-CABC-49B8-8602-422C5D9D769E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infra.Data", "Infra.Data\Infra.Data.csproj", "{98976211-CABC-49B8-8602-422C5D9D769E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infra.CrossCutting", "Infra.CrossCutting\Infra.CrossCutting.csproj", "{EEAB0E1F-1B0E-4110-9068-52BB4A8BA498}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infra.CrossCutting", "Infra.CrossCutting\Infra.CrossCutting.csproj", "{EEAB0E1F-1B0E-4110-9068-52BB4A8BA498}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testes", "Testes\Testes.csproj", "{F4E56FEA-E906-48F1-B8FE-3D2D03DE1429}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Testes", "Testes\Testes.csproj", "{F4E56FEA-E906-48F1-B8FE-3D2D03DE1429}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain.Cores", "Domain.Cores\Domain.Cores.csproj", "{6BC2A284-9152-4852-B0F6-2B26E00AEB71}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain.Cores", "Domain.Cores\Domain.Cores.csproj", "{6BC2A284-9152-4852-B0F6-2B26E00AEB71}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

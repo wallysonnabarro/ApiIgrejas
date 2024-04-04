@@ -7,5 +7,6 @@ namespace Infra.Data.Interfaces
     {
         Task<Result<bool>> NovoConectado(FichaConectadoDto dto);
         Task<Result<bool>> NovoLider(FichaLiderDto dto);
+        Task<Result<FichaPagamento>> GetFichasInscricoes(FichaParametros parametros);
     }
 }

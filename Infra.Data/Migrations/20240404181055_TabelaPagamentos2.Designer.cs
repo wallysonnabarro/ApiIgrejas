@@ -4,6 +4,7 @@ using Infra.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infra.Data.Migrations
 {
     [DbContext(typeof(ContextDb))]
-    partial class ContextDbModelSnapshot : ModelSnapshot
+    [Migration("20240404181055_TabelaPagamentos2")]
+    partial class TabelaPagamentos2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -254,9 +257,6 @@ namespace Infra.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Cancelado")
-                        .HasColumnType("int");
-
                     b.Property<decimal?>("Credito")
                         .HasColumnType("decimal(18,2)");
 
@@ -278,14 +278,8 @@ namespace Infra.Data.Migrations
                     b.Property<decimal?>("Dinheiro")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTime?>("DtTransferencia")
-                        .HasColumnType("datetime2");
-
                     b.Property<int?>("FichaConsumidorId")
                         .HasColumnType("int");
-
-                    b.Property<string>("ObsTransferencia")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Observacao")
                         .HasColumnType("nvarchar(max)");
@@ -300,9 +294,6 @@ namespace Infra.Data.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("SiaoId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Transferido")
                         .HasColumnType("int");
 
                     b.Property<int>("UsuarioId")

@@ -4,6 +4,7 @@ using Infra.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infra.Data.Migrations
 {
     [DbContext(typeof(ContextDb))]
-    partial class ContextDbModelSnapshot : ModelSnapshot
+    [Migration("20240404180952_TabelaPagamentos")]
+    partial class TabelaPagamentos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -244,84 +247,6 @@ namespace Infra.Data.Migrations
                     b.HasIndex("TriboId");
 
                     b.ToTable("FichasLider");
-                });
-
-            modelBuilder.Entity("Domain.Dominio.Pagamento", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Cancelado")
-                        .HasColumnType("int");
-
-                    b.Property<decimal?>("Credito")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("CreditoParcelado")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("DataRegistro")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal?>("Debito")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("Descontar")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("Desistente")
-                        .HasColumnType("int");
-
-                    b.Property<decimal?>("Dinheiro")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("DtTransferencia")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("FichaConsumidorId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ObsTransferencia")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Observacao")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Parcelas")
-                        .HasColumnType("int");
-
-                    b.Property<decimal?>("Pix")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("Receber")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("SiaoId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Transferido")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("VoluntarioId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FichaConsumidorId");
-
-                    b.HasIndex("SiaoId");
-
-                    b.HasIndex("UsuarioId");
-
-                    b.HasIndex("VoluntarioId");
-
-                    b.ToTable("Pagamentos");
                 });
 
             modelBuilder.Entity("Domain.Dominio.Role", b =>
@@ -612,37 +537,6 @@ namespace Infra.Data.Migrations
                     b.Navigation("Siao");
 
                     b.Navigation("Tribo");
-                });
-
-            modelBuilder.Entity("Domain.Dominio.Pagamento", b =>
-                {
-                    b.HasOne("Domain.Dominio.FichaConectado", "FichaConsumidor")
-                        .WithMany()
-                        .HasForeignKey("FichaConsumidorId");
-
-                    b.HasOne("Domain.Dominio.Siao", "Siao")
-                        .WithMany()
-                        .HasForeignKey("SiaoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Dominio.Usuario", "Usuario")
-                        .WithMany()
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Dominio.FichaLider", "Voluntario")
-                        .WithMany()
-                        .HasForeignKey("VoluntarioId");
-
-                    b.Navigation("FichaConsumidor");
-
-                    b.Navigation("Siao");
-
-                    b.Navigation("Usuario");
-
-                    b.Navigation("Voluntario");
                 });
 
             modelBuilder.Entity("Domain.Dominio.Usuario", b =>

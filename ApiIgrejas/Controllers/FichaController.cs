@@ -1,6 +1,7 @@
 ﻿using Domain.Dominio;
 using Domain.DTOs;
 using Infra.Data.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ApiIgrejas.Controllers
@@ -26,6 +27,13 @@ namespace ApiIgrejas.Controllers
         public async Task<Result<bool>> novolider(FichaLiderDto dto)
         {
             return await _fichaRepository.NovoLider(dto);
+        }
+
+        [Authorize]
+        [HttpPost("lista-inscricoes")]
+        public async Task<Result<FichaPagamento>> GetFichasInscricoes(FichaParametros parametros)
+        {
+            return await _fichaRepository.GetFichasInscricoes(parametros);
         }
     }
 }
