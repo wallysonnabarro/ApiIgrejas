@@ -9,5 +9,6 @@ namespace Infra.Data.Interfaces
         Task<Result<Paginacao<Area>>> Paginacao(PageWrapper wrapper);
         Task<Result<bool>> Editar(Area area);
         Task<Result<Area>> Detalhar(int id);
+        Task<Result<List<Area>>> GetAll();
     }
 }

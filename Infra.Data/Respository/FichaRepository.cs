@@ -63,7 +63,7 @@ namespace Infra.Data.Respository
             try
             {
                 var existe = await _db.FichasLider.Include(s => s.Siao).FirstOrDefaultAsync(x => x.Nome.Equals(dto.Nome));
-                if (existe == null)
+                if (existe != null)
                 {
                     return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Inscrição já foi registrado.", ocorrencia = "", versao = "" } });
                 }
@@ -74,7 +74,8 @@ namespace Infra.Data.Respository
                         Nome = dto.Nome,
                         Sexo = dto.Sexo,
                         Tribo = await _db.TribosEquipes.FirstOrDefaultAsync(x => x.Id == dto.Tribo),
-                        Siao = await _db.Siaos.FirstOrDefaultAsync(s => s.Id == dto.Siao)!
+                        Siao = await _db.Siaos.FirstOrDefaultAsync(s => s.Id == dto.Siao.Id)!,
+                        Area = await _db.AreasSet.FirstOrDefaultAsync(s => s.Id == dto.Area)
                     };
 
                     _db.Add(ficha);

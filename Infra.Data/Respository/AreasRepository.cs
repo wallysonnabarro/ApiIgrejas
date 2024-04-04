@@ -3,6 +3,7 @@ using Domain.DTOs;
 using Infra.Data.Context;
 using Infra.Data.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace Infra.Data.Respository
 {
@@ -55,6 +56,18 @@ namespace Infra.Data.Respository
             catch (Exception ex)
             {
                 return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "V1" } });
+            }
+        }
+
+        public async Task<Result<List<Area>>> GetAll()
+        {
+            try
+            {
+                return Result<List<Area>>.Sucesso(await _db.AreasSet.ToListAsync());
+            }
+            catch (Exception ex)
+            {
+                return Result<List<Area>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "V1" } });
             }
         }
 

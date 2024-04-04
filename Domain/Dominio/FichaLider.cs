@@ -7,5 +7,6 @@
         public required string Nome { get; set; }
         public int Sexo { get; set; }
         public required Siao Siao { get; set; }
+        public required Area Area { get; set; }
     }
 }

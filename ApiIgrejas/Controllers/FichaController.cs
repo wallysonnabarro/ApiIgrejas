@@ -23,9 +23,9 @@ namespace ApiIgrejas.Controllers
         }
 
         [HttpPost("novo-lider")]
-        public async Task<Result<bool>> novolider(FichaConectadoDto dto)
+        public async Task<Result<bool>> novolider(FichaLiderDto dto)
         {
-            return await _fichaRepository.NovoConectado(dto);
+            return await _fichaRepository.NovoLider(dto);
         }
     }
 }
