@@ -63,7 +63,7 @@ namespace Domain.DTOs
         public virtual bool TwoFactorEnabled { get; set; }
 
         //Relacionamentos
-        public required Role Role { get; set; }
+        public required int Role { get; set; }
 
         public required Contrato Contrato { get; set; }
     }

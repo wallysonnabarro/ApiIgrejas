@@ -121,7 +121,7 @@ namespace Domain.Dominio
             => UserName;
 
         //Relacionamentos
-        public virtual required Role Role { get; set; }
+        public required int Role { get; set; }
 
         public required Contrato Contrato { get; set; }
 

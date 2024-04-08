@@ -16,6 +16,5 @@
         public int FichaConsumidor { get; set; }
         public int Voluntario { get; set; }
         public int Siao { get; set; }
-        public int Usuario { get; set; }
     }
 }

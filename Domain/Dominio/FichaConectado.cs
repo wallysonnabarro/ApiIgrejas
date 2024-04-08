@@ -18,7 +18,7 @@
         public bool Cuidados { get; set; }
         public int Idade { get; set; }
         public string? DescricaoCuidados { get; set; }
-        public required Siao Siao { get; set; }
+        public required Evento Evento { get; set; }
         public int Confirmacao { get; set; }
     }
 }

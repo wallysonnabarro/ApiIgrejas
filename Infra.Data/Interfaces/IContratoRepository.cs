@@ -8,5 +8,6 @@ namespace Infra.Data.Interfaces
         Task<Result<ContratoDto>> NovoContrato(ContratoDto dto);
         Task<Result<Paginacao<Contrato>>> Paginacao(PageWrapper wrapper);
         Task<Result<Contrato>> Update(ContratoDto dto, int id);
+        Task<Result<Contrato>> GetResult(string email);
     }
 }

@@ -28,6 +28,7 @@ namespace Infra.CrossCutting.IoC
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IAuthorization, Authorization>();
+            services.AddScoped<IEventoServices, EventoServices>();
 
             //AutoMapper
             services.AddAutoMapper(typeof(ContratoProfile));

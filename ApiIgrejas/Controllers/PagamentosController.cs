@@ -53,15 +53,15 @@ namespace ApiIgrejas.Controllers
             }
         }
 
-        [HttpPost("cancelar/{id}")]
-        public async Task<Result<bool>> Cancelar(int id)
+        [HttpPost("cancelar")]
+        public async Task<Result<bool>> Cancelar(PagamentoCancelarDto dto)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             var isToken = authorization.DadosToken(token);
 
             if (isToken.Result.IdentidadeResultado!.Succeeded)
             {
-                return await pagamentoRepository.Cancelar(id, isToken.Result.Email!);
+                return await pagamentoRepository.Cancelar(dto, isToken.Result.Email!);
             }
             else
             {

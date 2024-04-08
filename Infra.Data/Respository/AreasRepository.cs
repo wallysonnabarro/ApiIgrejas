@@ -3,32 +3,42 @@ using Domain.DTOs;
 using Infra.Data.Context;
 using Infra.Data.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 
 namespace Infra.Data.Respository
 {
     public class AreasRepository : IAreasRepository
     {
         private readonly ContextDb _db;
+        private readonly IContratoRepository _contratoRepository;
 
-        public AreasRepository(ContextDb db)
+        public AreasRepository(ContextDb db, IContratoRepository contratoRepository)
         {
             _db = db;
+            _contratoRepository = contratoRepository;
         }
 
-        public async Task<Result<Area>> Detalhar(int id)
+        public async Task<Result<Area>> Detalhar(int id, string email)
         {
 
             try
             {
-                var existe = await _db.AreasSet.FirstOrDefaultAsync(x => x.Id == id);
-                if (existe == null)
+                var contrato = await _contratoRepository.GetResult(email);
+
+                if (contrato.Succeeded)
                 {
-                    return Result<Area>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Área não localizado.", ocorrencia = "", versao = "V1" } });
+                    var existe = await _db.AreasSet.Include(x => x.Contrato).FirstOrDefaultAsync(x => x.Id == id && x.Contrato.Id == contrato.Dados.Id);
+                    if (existe == null)
+                    {
+                        return Result<Area>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Área não localizado.", ocorrencia = "", versao = "V1" } });
+                    }
+                    else
+                    {
+                        return Result<Area>.Sucesso(existe);
+                    }
                 }
                 else
                 {
-                    return Result<Area>.Sucesso(existe);
+                    return Result<Area>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = contrato.Errors.Min(x => x.mensagem), ocorrencia = "", versao = "V1" } });
                 }
             }
             catch (Exception ex)
@@ -37,20 +47,29 @@ namespace Infra.Data.Respository
             }
         }
 
-        public async Task<Result<bool>> Editar(Area area)
+        public async Task<Result<bool>> Editar(Area area, string email)
         {
             try
             {
-                var existe = await _db.AreasSet.FirstOrDefaultAsync(x => x.Id == area.Id);
-                if (existe == null)
+                var contrato = await _contratoRepository.GetResult(email);
+
+                if (contrato.Succeeded)
                 {
-                    return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Área não localizado.", ocorrencia = "", versao = "V1" } });
+                    var existe = await _db.AreasSet.Include(x => x.Contrato).FirstOrDefaultAsync(x => x.Id == area.Id && x.Contrato.Id == contrato.Dados.Id);
+                    if (existe == null)
+                    {
+                        return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Área não localizado.", ocorrencia = "", versao = "V1" } });
+                    }
+                    else
+                    {
+                        existe.Nome = area.Nome;
+                        await _db.SaveChangesAsync();
+                        return Result<bool>.Sucesso(true);
+                    }
                 }
                 else
                 {
-                    existe.Nome = area.Nome;
-                    await _db.SaveChangesAsync();
-                    return Result<bool>.Sucesso(true);
+                    return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = contrato.Errors.Min(x => x.mensagem), ocorrencia = "", versao = "V1" } });
                 }
             }
             catch (Exception ex)
@@ -71,7 +90,7 @@ namespace Infra.Data.Respository
             }
         }
 
-        public async Task<Result<bool>> Novo(AreaDto dto)
+        public async Task<Result<bool>> Novo(AreaDto dto, string email)
         {
             try
             {
@@ -82,13 +101,23 @@ namespace Infra.Data.Respository
                 }
                 else
                 {
-                    var area = new Area
+                    var contrato = await _contratoRepository.GetResult(email);
+
+                    if (contrato.Succeeded)
                     {
-                        Nome = dto.Nome
-                    };
-                    _db.Add(area);
-                    await _db.SaveChangesAsync();
-                    return Result<bool>.Sucesso(true);
+                        var area = new Area
+                        {
+                            Nome = dto.Nome,
+                            Contrato = contrato.Dados
+                        };
+                        _db.Add(area);
+                        await _db.SaveChangesAsync();
+                        return Result<bool>.Sucesso(true);
+                    }
+                    else
+                    {
+                        return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = contrato.Errors.Min(x => x.mensagem), ocorrencia = "", versao = "V1" } });
+                    }
                 }
             }
             catch (Exception ex)
@@ -97,25 +126,36 @@ namespace Infra.Data.Respository
             }
         }
 
-        public async Task<Result<Paginacao<Area>>> Paginacao(PageWrapper wrapper)
+        public async Task<Result<Paginacao<Area>>> Paginacao(PageWrapper wrapper, string email)
         {
             try
             {
                 var page = wrapper.Skip == 0 ? 0 : wrapper.Skip - 1;
 
-                var lista = await _db.AreasSet
-                    .Skip(page * wrapper.PageSize)
-                    .Take(wrapper.PageSize)
-                    .OrderByDescending(x => x.Id)
-                    .ToListAsync();
+                var contrato = await _contratoRepository.GetResult(email);
 
-                return Result<Paginacao<Area>>.Sucesso(new Paginacao<Area>
+                if (contrato.Succeeded)
                 {
-                    Dados = lista,
-                    Count = await Count(),
-                    PageIndex = wrapper.Skip == 0 ? 1 : wrapper.Skip,
-                    PageSize = wrapper.PageSize
-                });
+                    var lista = await _db.AreasSet
+                        .Include(x => x.Contrato)
+                        .Where(x => x.Contrato.Id == contrato.Dados.Id)
+                        .Skip(page * wrapper.PageSize)
+                        .Take(wrapper.PageSize)
+                        .OrderByDescending(x => x.Id)
+                        .ToListAsync();
+
+                    return Result<Paginacao<Area>>.Sucesso(new Paginacao<Area>
+                    {
+                        Dados = lista,
+                        Count = await Count(),
+                        PageIndex = wrapper.Skip == 0 ? 1 : wrapper.Skip,
+                        PageSize = wrapper.PageSize
+                    });
+                }
+                else
+                {
+                    return Result<Paginacao<Area>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = contrato.Errors.Min(x => x.mensagem), ocorrencia = "", versao = "V1" } });
+                }
             }
             catch (Exception ex)
             {
@@ -124,7 +164,7 @@ namespace Infra.Data.Respository
         }
         private async Task<int> Count()
         {
-            return await _db.Siaos.CountAsync();
+            return await _db.Eventos.CountAsync();
         }
     }
 }

@@ -15,7 +15,7 @@ namespace Infra.Data.Context
         public DbSet<Contrato> Contratos { get; set; }
         public DbSet<Endereco> Enderecos { get; set; }
         public DbSet<Transacao> Transacaos { get; set; }
-        public DbSet<Siao> Siaos { get; set; }
+        public DbSet<Evento> Eventos { get; set; }
         public DbSet<Area> AreasSet { get; set; }
         public DbSet<FichaConectado> FichasConectados { get; set; }
         public DbSet<FichaLider> FichasLider { get; set; }

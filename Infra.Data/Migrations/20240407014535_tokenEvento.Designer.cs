@@ -4,6 +4,7 @@ using Infra.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infra.Data.Migrations
 {
     [DbContext(typeof(ContextDb))]
-    partial class ContextDbModelSnapshot : ModelSnapshot
+    [Migration("20240407014535_tokenEvento")]
+    partial class tokenEvento
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,16 +33,11 @@ namespace Infra.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ContratoId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ContratoId");
 
                     b.ToTable("AreasSet");
                 });
@@ -139,48 +137,6 @@ namespace Infra.Data.Migrations
                     b.ToTable("Enderecos");
                 });
 
-            modelBuilder.Entity("Domain.Dominio.Evento", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ContratoId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Coordenadores")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Descricao")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("Inicio")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("Termino")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ContratoId");
-
-                    b.ToTable("Eventos");
-                });
-
             modelBuilder.Entity("Domain.Dominio.FichaConectado", b =>
                 {
                     b.Property<int>("Id")
@@ -219,9 +175,6 @@ namespace Infra.Data.Migrations
                     b.Property<int>("EstadoCivil")
                         .HasColumnType("int");
 
-                    b.Property<int>("EventoId")
-                        .HasColumnType("int");
-
                     b.Property<int>("Idade")
                         .HasColumnType("int");
 
@@ -239,6 +192,9 @@ namespace Infra.Data.Migrations
                     b.Property<int>("Sexo")
                         .HasColumnType("int");
 
+                    b.Property<int>("SiaoId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Telefone")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -248,7 +204,7 @@ namespace Infra.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EventoId");
+                    b.HasIndex("SiaoId");
 
                     b.HasIndex("TriboId");
 
@@ -269,14 +225,14 @@ namespace Infra.Data.Migrations
                     b.Property<int>("Confirmacao")
                         .HasColumnType("int");
 
-                    b.Property<int>("EventoId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Sexo")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SiaoId")
                         .HasColumnType("int");
 
                     b.Property<int>("TriboId")
@@ -286,7 +242,7 @@ namespace Infra.Data.Migrations
 
                     b.HasIndex("AreaId");
 
-                    b.HasIndex("EventoId");
+                    b.HasIndex("SiaoId");
 
                     b.HasIndex("TriboId");
 
@@ -328,9 +284,6 @@ namespace Infra.Data.Migrations
                     b.Property<DateTime?>("DtTransferencia")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("EventoId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("FichaConsumidorId")
                         .HasColumnType("int");
 
@@ -349,6 +302,9 @@ namespace Infra.Data.Migrations
                     b.Property<decimal?>("Receber")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("SiaoId")
+                        .HasColumnType("int");
+
                     b.Property<int>("Transferido")
                         .HasColumnType("int");
 
@@ -360,9 +316,9 @@ namespace Infra.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EventoId");
-
                     b.HasIndex("FichaConsumidorId");
+
+                    b.HasIndex("SiaoId");
 
                     b.HasIndex("UsuarioId");
 
@@ -379,9 +335,6 @@ namespace Infra.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ContratoId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -391,9 +344,44 @@ namespace Infra.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ContratoId");
-
                     b.ToTable("Roles");
+                });
+
+            modelBuilder.Entity("Domain.Dominio.Siao", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Coordenadores")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Descricao")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Evento")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Inicio")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Termino")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Siaos");
                 });
 
             modelBuilder.Entity("Domain.Dominio.Transacao", b =>
@@ -526,7 +514,7 @@ namespace Infra.Data.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<int>("Role")
+                    b.Property<int>("RoleId")
                         .HasColumnType("int");
 
                     b.Property<string>("Salt")
@@ -554,6 +542,8 @@ namespace Infra.Data.Migrations
 
                     b.HasIndex("ContratoId");
 
+                    b.HasIndex("RoleId");
+
                     b.HasIndex("TriboEquipeId");
 
                     b.ToTable("Users");
@@ -574,17 +564,6 @@ namespace Infra.Data.Migrations
                     b.ToTable("RoleTransacao");
                 });
 
-            modelBuilder.Entity("Domain.Dominio.Area", b =>
-                {
-                    b.HasOne("Domain.Dominio.Contrato", "Contrato")
-                        .WithMany()
-                        .HasForeignKey("ContratoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Contrato");
-                });
-
             modelBuilder.Entity("Domain.Dominio.Contrato", b =>
                 {
                     b.HasOne("Domain.Dominio.Endereco", "Endereco")
@@ -596,22 +575,11 @@ namespace Infra.Data.Migrations
                     b.Navigation("Endereco");
                 });
 
-            modelBuilder.Entity("Domain.Dominio.Evento", b =>
-                {
-                    b.HasOne("Domain.Dominio.Contrato", "Contrato")
-                        .WithMany()
-                        .HasForeignKey("ContratoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Contrato");
-                });
-
             modelBuilder.Entity("Domain.Dominio.FichaConectado", b =>
                 {
-                    b.HasOne("Domain.Dominio.Evento", "Evento")
+                    b.HasOne("Domain.Dominio.Siao", "Siao")
                         .WithMany()
-                        .HasForeignKey("EventoId")
+                        .HasForeignKey("SiaoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -621,7 +589,7 @@ namespace Infra.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Evento");
+                    b.Navigation("Siao");
 
                     b.Navigation("Tribo");
                 });
@@ -634,9 +602,9 @@ namespace Infra.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Dominio.Evento", "Evento")
+                    b.HasOne("Domain.Dominio.Siao", "Siao")
                         .WithMany()
-                        .HasForeignKey("EventoId")
+                        .HasForeignKey("SiaoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -648,22 +616,22 @@ namespace Infra.Data.Migrations
 
                     b.Navigation("Area");
 
-                    b.Navigation("Evento");
+                    b.Navigation("Siao");
 
                     b.Navigation("Tribo");
                 });
 
             modelBuilder.Entity("Domain.Dominio.Pagamento", b =>
                 {
-                    b.HasOne("Domain.Dominio.Evento", "Evento")
-                        .WithMany()
-                        .HasForeignKey("EventoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Domain.Dominio.FichaConectado", "FichaConsumidor")
                         .WithMany()
                         .HasForeignKey("FichaConsumidorId");
+
+                    b.HasOne("Domain.Dominio.Siao", "Siao")
+                        .WithMany()
+                        .HasForeignKey("SiaoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Domain.Dominio.Usuario", "Usuario")
                         .WithMany()
@@ -675,24 +643,13 @@ namespace Infra.Data.Migrations
                         .WithMany()
                         .HasForeignKey("VoluntarioId");
 
-                    b.Navigation("Evento");
-
                     b.Navigation("FichaConsumidor");
+
+                    b.Navigation("Siao");
 
                     b.Navigation("Usuario");
 
                     b.Navigation("Voluntario");
-                });
-
-            modelBuilder.Entity("Domain.Dominio.Role", b =>
-                {
-                    b.HasOne("Domain.Dominio.Contrato", "Contrato")
-                        .WithMany()
-                        .HasForeignKey("ContratoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Contrato");
                 });
 
             modelBuilder.Entity("Domain.Dominio.Usuario", b =>
@@ -703,6 +660,12 @@ namespace Infra.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Domain.Dominio.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Domain.Dominio.TriboEquipe", "TriboEquipe")
                         .WithMany()
                         .HasForeignKey("TriboEquipeId")
@@ -710,6 +673,8 @@ namespace Infra.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Contrato");
+
+                    b.Navigation("Role");
 
                     b.Navigation("TriboEquipe");
                 });

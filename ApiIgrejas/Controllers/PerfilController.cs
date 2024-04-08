@@ -1,7 +1,9 @@
-﻿using Domain.DTOs;
+﻿using Domain.Dominio;
+using Domain.DTOs;
 using Infra.Data.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Service.Interface;
 
 namespace ApiIgrejas.Controllers
 {
@@ -11,22 +13,44 @@ namespace ApiIgrejas.Controllers
     public class PerfilController : ControllerBase
     {
         private readonly IRoleRepository _roleRepository;
+        private readonly IAuthorization authorization;
 
-        public PerfilController(IRoleRepository roleRepository)
+        public PerfilController(IRoleRepository roleRepository, IAuthorization authorization)
         {
             _roleRepository = roleRepository;
+            this.authorization = authorization;
         }
 
         [HttpPost("novo-perfil")]
-        public async Task<IActionResult> NovaPermissao(PerfilDto dto)
+        public async Task<Identidade> NovaPermissao(PerfilDto dto)
         {
-            return Accepted(await _roleRepository.Insert(dto));
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var isToken = await authorization.DadosToken(token);
+
+            if (isToken.IdentidadeResultado!.Succeeded)
+            {
+                return await _roleRepository.Insert(dto, isToken.Email!);
+            }
+            else
+            {
+                return Identidade.Failed(new IdentidadeError { Description = isToken.IdentidadeResultado.Errors.Min(x => x.Description) });
+            }
         }
 
         [HttpPost("lista-paginada")]
-        public async Task<IActionResult> ListaPaginada(PageWrapper dto)
+        public async Task<Result<Paginacao<PerfilListaPaginadaDto>>> ListaPaginada(PageWrapper dto)
         {
-            return Accepted(await _roleRepository.Paginacao(dto));
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var isToken = await authorization.DadosToken(token);
+
+            if (isToken.IdentidadeResultado!.Succeeded)
+            {
+                return await _roleRepository.Paginacao(dto, isToken.Email!);
+            }
+            else
+            {
+                return Result<Paginacao<PerfilListaPaginadaDto>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = isToken.IdentidadeResultado.Errors.Min(x => x.Description), ocorrencia = "", versao = "" } });
+            }
         }
 
         [HttpPost("update-perfil")]
@@ -36,9 +60,20 @@ namespace ApiIgrejas.Controllers
         }
 
         [HttpPost("perfil")]
-        public async Task<IActionResult> Perfil(PerfilUnicoDto dto)
+        public async Task<Result<PerfilListaPaginadaDto>> Perfil(PerfilUnicoDto dto)
         {
-            return Accepted(await _roleRepository.Get(dto.Perfils));
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var isToken = await authorization.DadosToken(token);
+
+            if (isToken.IdentidadeResultado!.Succeeded)
+            {
+                return await _roleRepository.Get(dto.Perfils, isToken.Email!);
+            }
+            else
+            {
+                return Result<PerfilListaPaginadaDto>.Failed(new List<Erros> {
+                    new Erros { codigo = "", mensagem = isToken.IdentidadeResultado.Errors.Min(x => x.Description), ocorrencia = "", versao = "" } });
+            }
         }
     }
 }

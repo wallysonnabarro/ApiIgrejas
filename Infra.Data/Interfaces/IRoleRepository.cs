@@ -7,12 +7,12 @@ namespace Infra.Data.Interfaces
     {
         Task<Identidade> Delete(int id);
         Task<Role> Get(int id);
-        Task<PerfilListaPaginadaDto> Get(string name);
-        Task<Identidade> Insert(PerfilDto roler);
-        Task<Identidade> Insert(int tipo);
+        Task<Result<PerfilListaPaginadaDto>> Get(string name, string email);
+        Task<Identidade> Insert(PerfilDto roler, string email);
+        Task<Identidade> Insert(int tipo, string email);
         Task<List<Role>> List();
         Task<Identidade> Update(UpdatePerfilDto roler);
         Task<bool> IsValid(string v);
-        Task<Result<Paginacao<PerfilListaPaginadaDto>>> Paginacao(PageWrapper wrapper);
+        Task<Result<Paginacao<PerfilListaPaginadaDto>>> Paginacao(PageWrapper wrapper, string email);
     }
 }

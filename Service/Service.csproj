@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Utilitarios\" />
     <Folder Include="Rotativas\" />
   </ItemGroup>
 

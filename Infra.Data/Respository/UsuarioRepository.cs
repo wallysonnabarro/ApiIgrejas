@@ -5,6 +5,7 @@ using Domain.Mappers;
 using Infra.Data.Context;
 using Infra.Data.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using NPOI.OpenXmlFormats;
 using Service.Interface;
 
 namespace Infra.Data.Respository
@@ -14,13 +15,15 @@ namespace Infra.Data.Respository
         private readonly ContextDb _context;
         private readonly IUserService _userServices;
         private readonly Mapper _mapper;
+        private readonly IRoleRepository roleRepository;
 
-        public UsuarioRepository(ContextDb context, IUserService userServices)
+        public UsuarioRepository(ContextDb context, IUserService userServices, IRoleRepository roleRepository)
         {
             _context = context;
             _userServices = userServices;
             var config = new MapperConfiguration(cfg => cfg.AddProfile<ContratoProfile>());
             _mapper = new Mapper(config);
+            this.roleRepository = roleRepository;
         }
 
 
@@ -53,7 +56,8 @@ namespace Infra.Data.Respository
                     UserName = user.UserName,
                     PhoneNumber = user.PhoneNumber,
                     PhoneNumberConfirmed = user.PhoneNumberConfirmed,
-                    TwoFactorEnabled = user.TwoFactorEnabled
+                    TwoFactorEnabled = user.TwoFactorEnabled,
+                    EmailConfirmed = true
                 };
 
                 _context.Users.Add(usuario);
@@ -74,16 +78,18 @@ namespace Infra.Data.Respository
 
         public async Task<SigniInUsuarioDto> GetUserByEmail(string email)
         {
-            Usuario? user = await _context.Users.Include(u => u.Role.Transacoes).FirstOrDefaultAsync(u => u.Email == email);
+            Usuario? user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+
+            var role = await _context.Roles.Include(x => x.Transacoes).FirstOrDefaultAsync(x => x.Id == user!.Role);
 
             return new SigniInUsuarioDto
             {
                 User = user,
                 Role = user == null ? null : new PerfilListaPaginadaDto
                 {
-                    Nome = user.Role.Nome,
-                    Id = user.Role.Id,
-                    Transacoes = user.Role.Transacoes
+                    Nome = role!.Nome,
+                    Id = role.Id,
+                    Transacoes = role.Transacoes
                 },
                 SignInResultado = user == null ? SignInResultado.NotAllowed : SignInResultado.Success
             };
@@ -116,7 +122,6 @@ namespace Infra.Data.Respository
 
                 var lista = await _context.Users
                     .Include(x => x.TriboEquipe)
-                    .Include(x => x.Role.Transacoes)
                     .Select(x => new UsuarioListDto
                     {
                         Cpf = x.Cpf,
@@ -125,16 +130,24 @@ namespace Infra.Data.Respository
                         TriboEquipe = x.TriboEquipe,
                         UserName = x.UserName,
                         PhoneNumber = x.PhoneNumber,
-                        Role = new PerfilListaPaginadaDto
-                        {
-                            Nome = x.Role.Nome,
-                            Id = x.Role.Id,
-                            Transacoes = x.Role.Transacoes
-                        }
+                        IdRole = x.Role
                     })
                     .Skip(page * wrapper.PageSize)
                     .Take(wrapper.PageSize)
                     .ToListAsync();
+
+                foreach (var item in lista)
+                {
+                    var role = await _context.Roles.Include(x => x.Transacoes)
+                        .Select(x => new PerfilListaPaginadaDto
+                        {
+                            Nome = x.Nome,
+                            Id = x.Id,
+                            Transacoes = x.Transacoes
+                        })
+                        .FirstOrDefaultAsync(x => x.Id == item.IdRole);
+                    item.Role = role!;
+                }
 
                 return Result<Paginacao<UsuarioListDto>>.Sucesso(new Paginacao<UsuarioListDto>
                 {

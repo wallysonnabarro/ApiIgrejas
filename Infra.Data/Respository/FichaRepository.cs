@@ -38,15 +38,15 @@ namespace Infra.Data.Respository
 
         private async Task<int> Count(int id)
         {
-            return await _db.FichasLider.Include(x => x.Siao).Where(x => x.Siao.Id == id).CountAsync();
+            return await _db.FichasLider.Include(x => x.Evento).Where(x => x.Evento.Id == id).CountAsync();
         }
 
-        private async Task<Result<FichaPagamento>> Voluntarios(FichaParametros parametros)
+        private async Task<Result<FichaPagamento>> Voluntarios(FichaParametros parametros, bool transferencia = false)
         {
             try
             {
                 var page = parametros.Skip == 0 ? 0 : parametros.Skip - 1;
-                var lista = await _db.FichasLider.Include(x => x.Siao).Where(x => x.Siao.Id == parametros.Evento)
+                var lista = await _db.FichasLider.Include(x => x.Evento).Where(x => x.Evento.Id == parametros.Evento && (transferencia == true ? x.Confirmacao == 0 : x.Confirmacao != 3))
                     .Select(x => new ListaInscricoes
                     {
                         Id = x.Id,
@@ -59,8 +59,8 @@ namespace Infra.Data.Respository
                 {
                     var pagamento = await _db.Pagamentos
                         .Include(x => x.Voluntario)
-                        .Include(x => x.Siao)
-                        .FirstOrDefaultAsync(x => x.Voluntario!.Id == item.Id && x.Siao.Id == parametros.Evento);
+                        .Include(x => x.Evento)
+                        .FirstOrDefaultAsync(x => x.Voluntario!.Id == item.Id && x.Evento.Id == parametros.Evento);
 
                     item.Pago = pagamento == null ? 0 : (pagamento!.Pix ?? 0) + (pagamento.Credito ?? 0) + (pagamento.CreditoParcelado ?? 0) + (pagamento.Debito ?? 0) + (pagamento.Dinheiro ?? 0);
                     item.Receber = pagamento == null ? 0 : pagamento.Receber;
@@ -94,12 +94,12 @@ namespace Infra.Data.Respository
             }
         }
 
-        private async Task<Result<FichaPagamento>> Consumidores(FichaParametros parametros)
+        private async Task<Result<FichaPagamento>> Consumidores(FichaParametros parametros, bool transferencia = false)
         {
             try
             {
                 var page = parametros.Skip == 0 ? 0 : parametros.Skip - 1;
-                var lista = await _db.FichasConectados.Include(x => x.Siao).Where(x => x.Siao.Id == parametros.Evento)
+                var lista = await _db.FichasConectados.Include(x => x.Evento).Where(x => x.Evento.Id == parametros.Evento && (transferencia == true ? x.Confirmacao == 0 : x.Confirmacao != 3))
                     .Select(x => new ListaInscricoes
                     {
                         Id = x.Id,
@@ -113,8 +113,8 @@ namespace Infra.Data.Respository
                 {
                     var pagamento = await _db.Pagamentos
                         .Include(x => x.FichaConsumidor)
-                        .Include(x => x.Siao)
-                        .FirstOrDefaultAsync(x => x.FichaConsumidor!.Id == item.Id && x.Siao.Id == parametros.Evento);
+                        .Include(x => x.Evento)
+                        .FirstOrDefaultAsync(x => x.FichaConsumidor!.Id == item.Id && x.Evento.Id == parametros.Evento);
 
                     item.Pago = pagamento == null ? 0 : (pagamento!.Pix ?? 0) + (pagamento.Credito ?? 0) + (pagamento.CreditoParcelado ?? 0) + (pagamento.Debito ?? 0) + (pagamento.Dinheiro ?? 0);
                     item.Receber = pagamento == null ? 0 : pagamento.Receber;
@@ -152,7 +152,7 @@ namespace Infra.Data.Respository
         {
             try
             {
-                var existe = await _db.FichasConectados.Include(s => s.Siao).FirstOrDefaultAsync(x => x.Nome.Equals(dto.Nome));
+                var existe = await _db.FichasConectados.Include(s => s.Evento).FirstOrDefaultAsync(x => x.Nome.Equals(dto.Nome));
                 if (existe != null)
                 {
                     return Result<bool>.Failed(new List<Erros> { new Erros { codigo = $"{existe.Id}", mensagem = "Inscrição já foi registrado.", ocorrencia = "", versao = "" } });
@@ -177,7 +177,7 @@ namespace Infra.Data.Respository
                         Sexo = dto.Sexo,
                         Confirmacao = 0,
                         Tribo = await _db.TribosEquipes.FirstOrDefaultAsync(x => x.Id == dto.Tribo)!,
-                        Siao = await _db.Siaos.FirstOrDefaultAsync(s => s.Id == dto.Siao)!
+                        Evento = await _db.Eventos.FirstOrDefaultAsync(s => s.Id == dto.Siao)!
                     };
 
                     _db.Add(ficha);
@@ -196,7 +196,7 @@ namespace Infra.Data.Respository
         {
             try
             {
-                var existe = await _db.FichasLider.Include(s => s.Siao).FirstOrDefaultAsync(x => x.Nome.Equals(dto.Nome));
+                var existe = await _db.FichasLider.Include(s => s.Evento).FirstOrDefaultAsync(x => x.Nome.Equals(dto.Nome));
                 if (existe != null)
                 {
                     return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Inscrição já foi registrado.", ocorrencia = "", versao = "" } });
@@ -209,7 +209,7 @@ namespace Infra.Data.Respository
                         Sexo = dto.Sexo,
                         Confirmacao = 0,
                         Tribo = await _db.TribosEquipes.FirstOrDefaultAsync(x => x.Id == dto.Tribo),
-                        Siao = await _db.Siaos.FirstOrDefaultAsync(s => s.Id == dto.Siao.Id)!,
+                        Evento = await _db.Eventos.FirstOrDefaultAsync(s => s.Id == dto.Siao.Id)!,
                         Area = await _db.AreasSet.FirstOrDefaultAsync(s => s.Id == dto.Area)
                     };
 
@@ -222,6 +222,25 @@ namespace Infra.Data.Respository
             catch (Exception ex)
             {
                 return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "" } });
+            }
+        }
+
+        public async Task<Result<FichaPagamento>> GetFichasInscricoesNaoconfirmados(FichaParametros parametros)
+        {
+            try
+            {
+                if (parametros.Tipo == 1)//Voluntários
+                {
+                    return await Voluntarios(parametros, true);
+                }
+                else //Consumidores
+                {
+                    return await Consumidores(parametros, true);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Result<FichaPagamento>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "" } });
             }
         }
     }

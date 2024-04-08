@@ -20,7 +20,7 @@
         public string? ObsTransferencia { get; set; }
         public FichaConectado? FichaConsumidor { get; set; }
         public FichaLider? Voluntario { get; set; }
-        public required Siao Siao { get; set; }
+        public required Evento Evento { get; set; }
         public required Usuario Usuario { get; set; }
     }
 }

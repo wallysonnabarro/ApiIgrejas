@@ -27,6 +27,7 @@ namespace Domain.DTOs
         [ProtectedPersonalData]
         public virtual string? PhoneNumber { get; set; }
 
-        public required PerfilListaPaginadaDto Role { get; set; }
+        public PerfilListaPaginadaDto Role { get; set; }
+        public int IdRole { get; set; }
     }
 }

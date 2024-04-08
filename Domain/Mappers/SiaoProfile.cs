@@ -12,8 +12,8 @@ namespace Domain.Mappers
             ///<summary>
             /// De SiaoNovoDto para Siao
             /// </summary>
-            CreateMap<SiaoNovoDto, Siao>()
-                .ForMember(d => d.Evento, opt => opt.MapFrom(src => src.Evento))
+            CreateMap<SiaoNovoDto, Evento>()
+                .ForMember(d => d.Nome, opt => opt.MapFrom(src => src.Evento))
                 .ForMember(d => d.Coordenadores, opt => opt.MapFrom(src => src.Coordenadores))
                 .ForMember(d => d.Inicio, opt => opt.MapFrom(src => src.Inicio))
                 .ForMember(d => d.Termino, opt => opt.MapFrom(src => src.Termino))

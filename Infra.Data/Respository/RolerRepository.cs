@@ -9,10 +9,12 @@ namespace Infra.Data.Respository
     public class RolerRepository : IRoleRepository
     {
         private readonly ContextDb _context;
+        private readonly IContratoRepository contratoRepository;
 
-        public RolerRepository(ContextDb context)
+        public RolerRepository(ContextDb context, IContratoRepository contratoRepository)
         {
             _context = context;
+            this.contratoRepository = contratoRepository;
         }
 
         private async Task<int> Count()
@@ -37,35 +39,55 @@ namespace Infra.Data.Respository
 
         public async Task<Role> Get(int id) => await _context.Roles.FirstOrDefaultAsync(r => r.Id == id);
 
-        public async Task<PerfilListaPaginadaDto> Get(string name)
-        {
-            return await _context.Roles
-                    .Include(x => x.Transacoes)
-                    .Select(x => new PerfilListaPaginadaDto
-                    {
-                        Nome = x.Nome,
-                        Id = x.Id,
-                        Transacoes = x.Transacoes!
-                    }).FirstOrDefaultAsync(r => r.Nome == name);                    
-        }
-
-        public async Task<Identidade> Insert(PerfilDto roler)
+        public async Task<Result<PerfilListaPaginadaDto>> Get(string name, string email)
         {
             try
             {
-                var listaTransacao = await _context.Transacaos.Where(x => roler.Transacoes.Contains(x.Id)).ToListAsync();
+                var roles = await _context.Roles
+                        .Include(x => x.Transacoes)
+                        .Select(x => new PerfilListaPaginadaDto
+                        {
+                            Nome = x.Nome,
+                            Id = x.Id,
+                            Transacoes = x.Transacoes!
+                        }).FirstOrDefaultAsync(r => r.Nome == name);
+                if (roles != null)
+                    return Result<PerfilListaPaginadaDto>.Sucesso(roles);
+                else return Result<PerfilListaPaginadaDto>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Perfil não encotrado", ocorrencia = "", versao = "" } });
+            }
+            catch (Exception ex)
+            {
+                return Result<PerfilListaPaginadaDto>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "" } });
+            }
+        }
 
-                var novo = new Role
+        public async Task<Identidade> Insert(PerfilDto roler, string email)
+        {
+            try
+            {
+                var contrato = await contratoRepository.GetResult(email);
+
+                if (contrato.Succeeded)
                 {
-                    Nome = roler.Nome,
-                    Status = 1,
-                    Transacoes = listaTransacao,
-                };
+                    var listaTransacao = await _context.Transacaos.Where(x => roler.Transacoes.Contains(x.Id)).ToListAsync();
 
-                _context.Roles.Add(novo);
-                _context.SaveChanges();
+                    var novo = new Role
+                    {
+                        Nome = roler.Nome,
+                        Status = 1,
+                        Transacoes = listaTransacao,
+                        Contrato = contrato.Dados,
+                    };
 
-                return Identidade.Success;
+                    _context.Roles.Add(novo);
+                    _context.SaveChanges();
+
+                    return Identidade.Success;
+                }
+                else
+                {
+                    return Identidade.Failed(new IdentidadeError { Code = "", Description = contrato.Errors.Min(x => x.mensagem) });
+                }
             }
             catch (Exception e)
             {
@@ -73,23 +95,27 @@ namespace Infra.Data.Respository
             }
         }
 
-        public async Task<Identidade> Insert(int tipo)
+        public async Task<Identidade> Insert(int tipo, string email)
         {
-            if (tipo == 0)
-            {
-                _context.Roles.Add(new Role() { Nome = "DESENVOLVEDOR" });
-                await _context.SaveChangesAsync();
-            }
+            var contrato = await contratoRepository.GetResult(email);
 
+            if (contrato.Succeeded)
+            {
+                if (tipo == 0)
+                {
+                    _context.Roles.Add(new Role() { Nome = "DESENVOLVEDOR", Contrato = contrato.Dados });
+                    await _context.SaveChangesAsync();
+                }
+            }
             //if (tipo == 1)
             //{
-            //    _context.Roles.Add(new Role() { Nome = "CLIENTE" });
+            //    _context.Roles.Add(new Role() { Nome = "CLIENTE", Contrato = contrato.Dados  });
             //    await _context.SaveChangesAsync();
             //}
 
             //if (tipo == 2)
             //{
-            //    _context.Roles.Add(new Role() { Nome = "CORRETOR" });
+            //    _context.Roles.Add(new Role() { Nome = "CORRETOR", Contrato = contrato.Dados  });
             //    await _context.SaveChangesAsync();
             //}
 
@@ -103,33 +129,44 @@ namespace Infra.Data.Respository
 
         public async Task<List<Role>> List() => await _context.Roles.ToListAsync();
 
-        public async Task<Result<Paginacao<PerfilListaPaginadaDto>>> Paginacao(PageWrapper wrapper)
+        public async Task<Result<Paginacao<PerfilListaPaginadaDto>>> Paginacao(PageWrapper wrapper, string email)
         {
             try
             {
-                var page = wrapper.Skip == 0 ? 0 : wrapper.Skip - 1;
+                var contrato = await contratoRepository.GetResult(email);
 
-                var lista = await _context.Roles
-                    .Include(x => x.Transacoes)
-                    .Select(x => new PerfilListaPaginadaDto
-                    {
-                        Nome = x.Nome,
-                        Id = x.Id,
-                        Transacoes = x.Transacoes!
-                    })
-                    .Skip(page * wrapper.PageSize)
-                    .Take(wrapper.PageSize)
-                    .ToListAsync();
-
-                int count = await Count();
-
-                return Result<Paginacao<PerfilListaPaginadaDto>>.Sucesso(new Paginacao<PerfilListaPaginadaDto>
+                if (contrato.Succeeded)
                 {
-                    Count = count,
-                    Dados = lista,
-                    PageIndex = wrapper.Skip == 0 ? 1 : wrapper.Skip,
-                    PageSize = wrapper.PageSize
-                });
+                    var page = wrapper.Skip == 0 ? 0 : wrapper.Skip - 1;
+
+                    var lista = await _context.Roles
+                        .Include(x => x.Contrato)
+                        .Include(x => x.Transacoes)
+                        .Where(x => x.Contrato.Id == contrato.Dados.Id)
+                        .Select(x => new PerfilListaPaginadaDto
+                        {
+                            Nome = x.Nome,
+                            Id = x.Id,
+                            Transacoes = x.Transacoes!
+                        })
+                        .Skip(page * wrapper.PageSize)
+                        .Take(wrapper.PageSize)
+                        .ToListAsync();
+
+                    int count = await Count();
+
+                    return Result<Paginacao<PerfilListaPaginadaDto>>.Sucesso(new Paginacao<PerfilListaPaginadaDto>
+                    {
+                        Count = count,
+                        Dados = lista,
+                        PageIndex = wrapper.Skip == 0 ? 1 : wrapper.Skip,
+                        PageSize = wrapper.PageSize
+                    });
+                }
+                else
+                {
+                    return Result<Paginacao<PerfilListaPaginadaDto>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = contrato.Errors.Min(x => x.mensagem), ocorrencia = "", versao = "V1" } });
+                }
             }
             catch (Exception ex)
             {

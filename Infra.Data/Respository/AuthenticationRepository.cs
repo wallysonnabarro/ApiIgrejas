@@ -7,14 +7,16 @@ namespace Infra.Data.Respository
     public class AuthenticationRepository : IAuthenticationRepository
     {
         private readonly IUsuarioRepository _userRepository;
+        private readonly IRoleRepository _roleRepository;
         private readonly IAuthenticationServices _authenticationService;
         private readonly ITokenService _tokenService;
 
-        public AuthenticationRepository(IUsuarioRepository userRepository, IAuthenticationServices authenticationService, ITokenService tokenService)
+        public AuthenticationRepository(IUsuarioRepository userRepository, IAuthenticationServices authenticationService, ITokenService tokenService, IRoleRepository roleRepository)
         {
             _userRepository = userRepository;
             _authenticationService = authenticationService;
             _tokenService = tokenService;
+            _roleRepository = roleRepository;
         }
 
         public async Task<Token> AuthenticateUser(string email, string senha)
@@ -37,7 +39,9 @@ namespace Infra.Data.Respository
                 }
                 else if (passValid.Succeeded)
                 {
-                    token = await _tokenService.GenerateToken(user.User);
+                    var role = await _roleRepository.Get(user.Role!.Id);
+
+                    token = await _tokenService.GenerateToken(user.User, role);
                     token.Resultado = SignInResultado.Success;
                 }
                 else

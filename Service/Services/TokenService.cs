@@ -11,7 +11,7 @@ namespace Service.Services
 {
     public class TokenService : ITokenService
     {
-        public async Task<Token> GenerateToken(Usuario user)
+        public async Task<Token> GenerateToken(Usuario user, Role role)
         {
             return await Task.Run(() =>
             {
@@ -22,7 +22,7 @@ namespace Service.Services
                     Subject = new ClaimsIdentity(new Claim[]
                     {
                         new Claim(ClaimTypes.Name, user.Nome),
-                        new Claim(ClaimTypes.Role, user.Role.Nome),
+                        new Claim(ClaimTypes.Role, role.Nome),
                         new Claim(ClaimTypes.Email, user.Email)
                     }),
                     Expires = DateTime.UtcNow.AddHours(2),

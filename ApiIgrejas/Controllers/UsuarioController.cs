@@ -4,6 +4,7 @@ using Infra.Data.Context;
 using Infra.Data.Interfaces;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Service.Interface;
 using System.Net.Mime;
 
@@ -105,9 +106,9 @@ namespace ApiIgrejas.Controllers
             }
         }
 
-        // <summary>
-        // Este endpoint, deverá ser removido na publicação.
-        // </summary>
+        // //<summary>
+        // //Este endpoint, deverá ser removido na publicação.
+        // //</summary>
         //[HttpGet("cadastro-develope")]
         //public async Task<Identidade> CadastroDeveloper()
         //{
@@ -142,7 +143,7 @@ namespace ApiIgrejas.Controllers
         //        NormalizedUserName = "WALLYSON LOPES",
         //        Contrato = contrato,
         //        Password = "389419wE1e@",
-        //        Role = role,
+        //        Role = 1,
         //        TriboEquipe = triboEquipe,
         //        UserName = "wallyson.a3@gmail.com",
         //        TwoFactorEnabled = false,

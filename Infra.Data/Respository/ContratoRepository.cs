@@ -167,5 +167,19 @@ namespace Infra.Data.Respository
                 return Result<Contrato>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "V1" } });
             }
         }
+
+        public async Task<Result<Contrato>> GetResult(string email)
+        {
+            try
+            {
+                var existe = await _contextDb.Users.Include(c => c.Contrato).FirstOrDefaultAsync(x => x.Email == email);
+                if (existe == null) return Result<Contrato>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Dados inválidos. Entre em contato com o responsável do contrato.", ocorrencia = "", versao = "V1" } });
+                else return Result<Contrato>.Sucesso(existe.Contrato);
+            }
+            catch (Exception ex)
+            {
+                return Result<Contrato>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "V1" } });
+            }
+        }
     }
 }

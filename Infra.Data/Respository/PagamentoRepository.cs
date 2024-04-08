@@ -15,11 +15,17 @@ namespace Infra.Data.Respository
             _db = db;
         }
 
-        public async Task<Result<bool>> Cancelar(int id, string EmailUser)
+        public async Task<Result<bool>> Cancelar(PagamentoCancelarDto dto, string EmailUser)
         {
             try
             {
-                var existe = await _db.Pagamentos.FirstOrDefaultAsync(x => x.Id == id);
+                var existe = await _db.Pagamentos
+                    .Include(p => p.FichaConsumidor)
+                    .Include(p => p.Voluntario)
+                    .Include(p => p.Evento)
+                    .FirstOrDefaultAsync(x => (dto.Tipo == 1 ? x.Voluntario!.Id == dto.Id : x.FichaConsumidor!.Id == dto.Id)
+                        && x.Evento.Id == dto.Siao);
+
                 if (existe == null)
                 {
                     return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Pagamento não localizado.", ocorrencia = "", versao = "" } });
@@ -31,7 +37,12 @@ namespace Infra.Data.Respository
                     if (user == null) return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Usuário inválido.", ocorrencia = "", versao = "" } });
                     else
                     {
-                        existe.Cancelado = 0;
+                        if (dto.Tipo == 1) existe.Voluntario!.Confirmacao = 0;
+                        else existe.FichaConsumidor!.Confirmacao = 0;
+
+                        await _db.SaveChangesAsync();
+
+                        _db.Pagamentos.Remove(existe);
                         await _db.SaveChangesAsync();
                         return Result<bool>.Sucesso(true);
                     }
@@ -49,7 +60,7 @@ namespace Infra.Data.Respository
             {
                 var pg = new Pagamento
                 {
-                    Siao = await _db.Siaos.FirstOrDefaultAsync(x => x.Id == dto.Siao),
+                    Evento = await _db.Eventos.FirstOrDefaultAsync(x => x.Id == dto.Siao),
                     Usuario = await _db.Users.FirstOrDefaultAsync(x => x.UserName.Equals(EmailUser)),
                     Credito = dto.Credito,
                     CreditoParcelado = dto.CreditoParcelado,
@@ -69,6 +80,19 @@ namespace Infra.Data.Respository
                 _db.Add(pg);
                 await _db.SaveChangesAsync();
 
+                if (dto.FichaConsumidor != 0)
+                {
+                    var consumidor = await _db.FichasConectados.FirstOrDefaultAsync(x => x.Id == dto.FichaConsumidor);
+                    consumidor!.Confirmacao = 1;
+                    await _db.SaveChangesAsync();
+                }
+                else
+                {
+                    var voluntario = await _db.FichasLider.FirstOrDefaultAsync(x => x.Id == dto.Voluntario);
+                    voluntario!.Confirmacao = 1;
+                    await _db.SaveChangesAsync();
+                }
+
                 return Result<bool>.Sucesso(true);
             }
             catch (Exception ex)
@@ -84,11 +108,13 @@ namespace Infra.Data.Respository
                 var pagamentoPrimario = await _db.Pagamentos
                     .Include(x => x.Voluntario)
                     .Include(x => x.FichaConsumidor)
-                    .Include(x => x.Siao)
+                    .Include(x => x.Evento)
                     .FirstOrDefaultAsync(x => (tipo == 1 ? x.Voluntario!.Id == idTransferidor : x.FichaConsumidor!.Id == idTransferidor)
-                                        && x.Siao.Id == siao);
+                                        && x.Evento.Id == siao);
 
                 var user = await _db.Users.FirstOrDefaultAsync(x => x.UserName.Equals(EmailUser));
+
+                int identificador = 0;
 
                 if (user == null) return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Usuário inválido.", ocorrencia = "", versao = "" } });
                 else
@@ -96,11 +122,15 @@ namespace Infra.Data.Respository
                     if (tipo == 1)
                     {
                         var ficha = await _db.FichasLider.FirstOrDefaultAsync(x => x.Id == idRecebedor);
+                        ficha!.Confirmacao = 1;
+                        identificador = pagamentoPrimario!.Voluntario!.Id;
                         pagamentoPrimario!.Voluntario = ficha;
                     }
                     else
                     {
                         var ficha = await _db.FichasConectados.FirstOrDefaultAsync(x => x.Id == idRecebedor);
+                        ficha!.Confirmacao = 1;
+                        identificador = pagamentoPrimario!.FichaConsumidor!.Id;
                         pagamentoPrimario!.FichaConsumidor = ficha;
                     }
                     pagamentoPrimario.Usuario = user;
@@ -108,6 +138,20 @@ namespace Infra.Data.Respository
                     pagamentoPrimario.ObsTransferencia = obs;
                     pagamentoPrimario.Transferido = 1;
 
+                    await _db.SaveChangesAsync();
+
+                    if (tipo == 1)
+                    {
+                        var ficha = await _db.FichasLider.FirstOrDefaultAsync(x => x.Id == identificador);
+                        ficha!.Confirmacao = 0;
+                    }
+                    else
+                    {
+                        var ficha = await _db.FichasConectados.FirstOrDefaultAsync(x => x.Id == identificador);
+                        ficha!.Confirmacao = 0;
+                    }
+
+                    await _db.SaveChangesAsync();
                     return Result<bool>.Sucesso(true);
                 }
             }

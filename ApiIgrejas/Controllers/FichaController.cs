@@ -35,5 +35,12 @@ namespace ApiIgrejas.Controllers
         {
             return await _fichaRepository.GetFichasInscricoes(parametros);
         }
+
+        [Authorize]
+        [HttpPost("lista-inscricoes-nao-confirmados")]
+        public async Task<Result<FichaPagamento>> GetFichasInscricoesNaoConfirmados(FichaParametros parametros)
+        {
+            return await _fichaRepository.GetFichasInscricoesNaoconfirmados(parametros);
+        }
     }
 }
