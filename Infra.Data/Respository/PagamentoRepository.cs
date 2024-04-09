@@ -54,6 +54,48 @@ namespace Infra.Data.Respository
             }
         }
 
+        public async Task<Result<PagamentoAtualizarDto>> BuscarAtualizar(PagamentoCancelarDto dto)
+        {
+            try
+            {
+                var existe = await _db.Pagamentos
+                    .Include(p => p.FichaConsumidor)
+                    .Include(p => p.Voluntario)
+                    .Include(p => p.Evento)
+                    .Select(x => new PagamentoAtualizarDto
+                    {
+                        Credito = x.Credito,
+                        CreditoParcelado = x.CreditoParcelado,
+                        DataRegistro = x.DataRegistro,
+                        Debito = x.Debito,
+                        Descontar = x.Descontar,
+                        Desistente = x.Desistente,
+                        Dinheiro = x.Dinheiro,
+                        FichaConsumidor = dto.Tipo == 2 ? x.FichaConsumidor!.Id : 0,
+                        Voluntario = dto.Tipo == 1 ? x.Voluntario!.Id : 0,
+                        Observacao = x.Observacao,
+                        Parcelas = x.Parcelas,
+                        Pix = x.Pix,
+                        Receber = x.Receber,
+                        Siao = dto.Siao,
+                        IdPagamento = x.Id
+                    })
+                    .FirstOrDefaultAsync(x => (dto.Tipo == 1 ? x.Voluntario == dto.Id : x.FichaConsumidor == dto.Id)
+                        && x.Siao == dto.Siao);
+
+                if (existe == null)
+                {
+                    return Result<PagamentoAtualizarDto>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Pagamento não localizado.", ocorrencia = "", versao = "" } });
+                }
+
+                return Result<PagamentoAtualizarDto>.Sucesso(existe);
+            }
+            catch (Exception ex)
+            {
+                return Result<PagamentoAtualizarDto>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "" } });
+            }
+        }
+
         public async Task<Result<bool>> Confirmar(PagamentoDto dto, string EmailUser)
         {
             try
@@ -150,6 +192,38 @@ namespace Infra.Data.Respository
                         var ficha = await _db.FichasConectados.FirstOrDefaultAsync(x => x.Id == identificador);
                         ficha!.Confirmacao = 0;
                     }
+
+                    await _db.SaveChangesAsync();
+                    return Result<bool>.Sucesso(true);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "" } });
+            }
+        }
+
+        public async Task<Result<bool>> Atualizar(PagamentoAtualizarDto dto)
+        {
+            try
+            {
+                var existe = await _db.Pagamentos.FirstOrDefaultAsync(x => x.Id == dto.IdPagamento);
+
+                if (existe == null)
+                {
+                    return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Pagamento não localizado.", ocorrencia = "", versao = "" } });
+                }
+                else
+                {
+                    existe.Debito = dto.Debito;
+                    existe.Credito = dto.Credito;
+                    existe.Parcelas = dto.Parcelas;
+                    existe.CreditoParcelado = dto.CreditoParcelado;
+                    existe.Pix = dto.Pix;
+                    existe.Descontar = dto.Descontar;
+                    existe.Observacao = dto.Observacao;
+                    existe.Receber = dto.Receber;
+                    existe.Dinheiro = dto.Dinheiro;
 
                     await _db.SaveChangesAsync();
                     return Result<bool>.Sucesso(true);

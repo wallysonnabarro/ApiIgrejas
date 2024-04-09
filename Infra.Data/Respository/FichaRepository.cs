@@ -62,7 +62,7 @@ namespace Infra.Data.Respository
                         .Include(x => x.Evento)
                         .FirstOrDefaultAsync(x => x.Voluntario!.Id == item.Id && x.Evento.Id == parametros.Evento);
 
-                    item.Pago = pagamento == null ? 0 : (pagamento!.Pix ?? 0) + (pagamento.Credito ?? 0) + (pagamento.CreditoParcelado ?? 0) + (pagamento.Debito ?? 0) + (pagamento.Dinheiro ?? 0);
+                    item.Pago = pagamento == null ? 0 : (pagamento!.Pix ?? 0) + (pagamento.Credito ?? 0) + (pagamento.CreditoParcelado ?? 0) + (pagamento.Debito ?? 0) + (pagamento.Dinheiro ?? 0) + (pagamento.Descontar ?? 0);
                     item.Receber = pagamento == null ? 0 : pagamento.Receber;
                 }
 
@@ -116,7 +116,7 @@ namespace Infra.Data.Respository
                         .Include(x => x.Evento)
                         .FirstOrDefaultAsync(x => x.FichaConsumidor!.Id == item.Id && x.Evento.Id == parametros.Evento);
 
-                    item.Pago = pagamento == null ? 0 : (pagamento!.Pix ?? 0) + (pagamento.Credito ?? 0) + (pagamento.CreditoParcelado ?? 0) + (pagamento.Debito ?? 0) + (pagamento.Dinheiro ?? 0);
+                    item.Pago = pagamento == null ? 0 : (pagamento!.Pix ?? 0) + (pagamento.Credito ?? 0) + (pagamento.CreditoParcelado ?? 0) + (pagamento.Debito ?? 0) + (pagamento.Dinheiro ?? 0) + (pagamento.Descontar ?? 0);
                     item.Receber = pagamento == null ? 0 : pagamento.Receber;
                 }
 
@@ -209,7 +209,7 @@ namespace Infra.Data.Respository
                         Sexo = dto.Sexo,
                         Confirmacao = 0,
                         Tribo = await _db.TribosEquipes.FirstOrDefaultAsync(x => x.Id == dto.Tribo),
-                        Evento = await _db.Eventos.FirstOrDefaultAsync(s => s.Id == dto.Siao.Id)!,
+                        Evento = await _db.Eventos.FirstOrDefaultAsync(s => s.Id == dto.Siao)!,
                         Area = await _db.AreasSet.FirstOrDefaultAsync(s => s.Id == dto.Area)
                     };
 

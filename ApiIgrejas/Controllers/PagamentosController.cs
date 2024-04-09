@@ -67,7 +67,18 @@ namespace ApiIgrejas.Controllers
             {
                 return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Usuário inválido.", ocorrencia = "", versao = "" } });
             }
+        }
 
+        [HttpPost("buscar-pagamento")]
+        public async Task<Result<PagamentoAtualizarDto>> Buscar(PagamentoCancelarDto dto)
+        {
+            return await pagamentoRepository.BuscarAtualizar(dto);
+        }
+
+        [HttpPost("atualizar-pagamento")]
+        public async Task<Result<bool>> Atualizar(PagamentoAtualizarDto dto)
+        {
+            return await pagamentoRepository.Atualizar(dto);
         }
     }
 }

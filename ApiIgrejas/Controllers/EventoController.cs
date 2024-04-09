@@ -105,11 +105,12 @@ namespace ApiIgrejas.Controllers
             }
         }
 
-        //[HttpGet("evento-andamento")]
-        //public async Task<Result<List<EventosAtivosDto>>> SiaoEmAndamento()
-        //{
-        //    return await _siaoRepository.GetEmIniciado();
-        //}
+        [Authorize]
+        [HttpGet("evento-andamento")]
+        public async Task<Result<List<EventosAtivosDto>>> SiaoEmAndamento()
+        {
+            return await _siaoRepository.GetEmIniciado();
+        }
 
         [HttpPost("confirmar-token")]
         public async Task<Result<EventosAtivosDto>> confirmarToken(ConfirmarTokenDto dto)
@@ -117,12 +118,10 @@ namespace ApiIgrejas.Controllers
             return await _siaoRepository.ConfirmarToken(dto);
         }
 
-       //[HttpGet("gerarToken")]
-       //public async Task<string> Gerar()
-       // {
-       //     return await TokenEvento.GenerateToken();
-       // }
-
-
+        //[HttpGet("gerarToken")]
+        //public async Task<string> Gerar()
+        //{
+        //    return await TokenEvento.GenerateToken();
+        //}
     }
 }
