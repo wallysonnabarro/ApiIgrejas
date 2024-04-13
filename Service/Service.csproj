@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AspNetCore.Reporting" Version="2.1.0" />
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="AutoMapper.Collection" Version="10.0.0" />
     <PackageReference Include="FluentValidation" Version="11.9.0" />
@@ -33,6 +34,21 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Domain\Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Reports\dsCheckin.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>dsCheckin.xsd</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Reports\dsCheckin.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsCheckin.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
 
 </Project>

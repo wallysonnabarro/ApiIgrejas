@@ -22,6 +22,7 @@ namespace Infra.CrossCutting.IoC
             services.AddScoped<IAreasRepository, AreasRepository>();
             services.AddScoped<IFichaRepository, FichaRepository>();
             services.AddScoped<IPagamentoRepository, PagamentoRepository>();
+            services.AddScoped<IRelatoriosRepository, RelatoriosRepository>();
 
             //scoped services
             services.AddScoped<IAuthenticationServices, AuthenticationService>();
@@ -29,6 +30,8 @@ namespace Infra.CrossCutting.IoC
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IAuthorization, Authorization>();
             services.AddScoped<IEventoServices, EventoServices>();
+            services.AddScoped<IRelatorioServices, RelatorioServices>();
+            services.AddScoped<IRenderType, RenderTypeServices>();
 
             //AutoMapper
             services.AddAutoMapper(typeof(ContratoProfile));
