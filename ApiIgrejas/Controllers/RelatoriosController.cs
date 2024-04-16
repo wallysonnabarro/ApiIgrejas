@@ -1,11 +1,14 @@
 ﻿using Domain.Dominio;
 using Domain.DTOs;
 using Infra.Data.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Crypto;
 using Service.Interface;
 
 namespace ApiIgrejas.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class RelatoriosController : ControllerBase
@@ -29,6 +32,12 @@ namespace ApiIgrejas.Controllers
         public async Task<Result<FichasDto<List<CheckInReports>>>> GetListConectados(ParametrosConectados dto)
         {
             return await _repository.GetByConectados(dto);
+        }
+
+        [HttpPost("reader-conectado-novo")]
+        public async Task<Result<DadosReaderRelatorio>> NovoConectado(DadosReaderRelatorioDto dto)
+        {
+            return await _repository.NovoConectadoReader(dto);
         }
     }
 }

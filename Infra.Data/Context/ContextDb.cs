@@ -20,5 +20,6 @@ namespace Infra.Data.Context
         public DbSet<FichaConectado> FichasConectados { get; set; }
         public DbSet<FichaLider> FichasLider { get; set; }
         public DbSet<Pagamento> Pagamentos { get; set; }
+        public DbSet<DadosReaderRelatorio> DadosReaderRelatorios { get; set; }
     }
 }

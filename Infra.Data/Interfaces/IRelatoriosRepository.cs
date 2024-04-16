@@ -7,5 +7,6 @@ namespace Infra.Data.Interfaces
     {
         Task<Result<DadosRelatorio<List<CheckInReports>>>> GetByIdHomens(ParametrosEvento dto);
         Task<Result<FichasDto<List<CheckInReports>>>> GetByConectados(ParametrosConectados dto);
+        Task<Result<DadosReaderRelatorio>> NovoConectadoReader(DadosReaderRelatorioDto dto);
     }
 }

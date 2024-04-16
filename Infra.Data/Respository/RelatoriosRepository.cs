@@ -37,9 +37,7 @@ namespace Infra.Data.Respository
 
                 var dados = new FichasDto<List<CheckInReports>>
                 {
-                    Dados = lista,
-                    TituloRelatorio = "SIÃO | Ministério Braço Forte do Senhor",
-                    SubTituloRelatorio = "Lugar de se Conectar com Deus"
+                    Dados = lista
                 };
 
                 return Result<FichasDto<List<CheckInReports>>>.Sucesso(dados);
@@ -82,10 +80,7 @@ namespace Infra.Data.Respository
 
                 var dados = new DadosRelatorio<List<CheckInReports>>
                 {
-                    Dados = lista,
-                    Imagem = imagemBytes,
-                    TituloRelatorio = "SIÃO | Ministério Braço Forte do Senhor",
-                    SubTituloRelatorio = "Lugar de se Conectar com Deus"
+                    Dados = lista
                 };
 
                 return Result<DadosRelatorio<List<CheckInReports>>>.Sucesso(dados);
@@ -93,6 +88,41 @@ namespace Infra.Data.Respository
             catch (Exception e)
             {
                 return Result<DadosRelatorio<List<CheckInReports>>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = e.Message, ocorrencia = "", versao = "" } });
+            }
+        }
+
+        public async Task<Result<DadosReaderRelatorio>> NovoConectadoReader(DadosReaderRelatorioDto dto)
+        {
+            try
+            {
+                if (await _db.DadosReaderRelatorios.AnyAsync(x => x.Tipo == dto.TipoRelatorio))
+                {
+                    var atualizar = await _db.DadosReaderRelatorios.FirstAsync(x => x.Tipo == dto.TipoRelatorio);
+                    atualizar.Tipo = dto.TipoRelatorio;
+                    atualizar.Titulo = dto.Titulo;
+                    atualizar.Subtitulo = dto.Subtitulo;
+
+                    await _db.SaveChangesAsync();
+                    return Result<DadosReaderRelatorio>.Sucesso(atualizar);
+                }
+                else
+                {
+                    var novo = new DadosReaderRelatorio
+                    {
+                        Subtitulo = dto.Subtitulo,
+                        Titulo = dto.Titulo,
+                        Imagem = dto.Imagem,
+                        Tipo = dto.TipoRelatorio
+                    };
+
+                    _db.Add(novo);
+                    await _db.SaveChangesAsync();
+                    return Result<DadosReaderRelatorio>.Sucesso(novo);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Result<DadosReaderRelatorio>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "" } });
             }
         }
     }
