@@ -61,7 +61,7 @@ namespace Infra.Data.Respository
             }
         }
 
-        public async Task<Identidade> Insert(PerfilDto roler, string email)
+        public async Task<Result<int>> Insert(PerfilDto roler, string email)
         {
             try
             {
@@ -82,20 +82,24 @@ namespace Infra.Data.Respository
                     _context.Roles.Add(novo);
                     _context.SaveChanges();
 
-                    return Identidade.Success;
+                    return Result<int>.Success;
                 }
                 else
                 {
-                    return Identidade.Failed(new IdentidadeError { Code = "", Description = contrato.Errors.Min(x => x.mensagem) });
+                    return Result<int>.Failed(new List<Erros>{ new Erros {
+                        mensagem = "Contrato não localizado."
+                    }});
                 }
             }
             catch (Exception e)
             {
-                return Identidade.Failed(new IdentidadeError { Code = e.HResult.ToString(), Description = e.Message });
+                return Result<int>.Failed(new List<Erros>{ new Erros {
+                    mensagem = e.Message,
+                    }});
             }
         }
 
-        public async Task<Identidade> Insert(int tipo, string email)
+        public async Task<Result<int>> Insert(int tipo, string email)
         {
             var contrato = await contratoRepository.GetResult(email);
 
@@ -119,7 +123,7 @@ namespace Infra.Data.Respository
             //    await _context.SaveChangesAsync();
             //}
 
-            return Identidade.Success;
+            return Result<int>.Success;
         }
 
         public async Task<bool> IsValid(string v)
@@ -174,7 +178,7 @@ namespace Infra.Data.Respository
             }
         }
 
-        public async Task<Identidade> Update(UpdatePerfilDto roler)
+        public async Task<Result<bool>> Update(UpdatePerfilDto roler)
         {
             try
             {
@@ -182,7 +186,7 @@ namespace Infra.Data.Respository
                     .Include(x => x.Transacoes)
                     .FirstOrDefaultAsync(r => r.Id == roler.Id);
 
-                if (role == null) return Identidade.Failed(new IdentidadeError() { Code = "error", Description = "Perfil não encontrado." });
+                if (role == null) return Result<bool>.Failed(new List<Erros>() { new Erros { mensagem = "Perfil não localizado." } });
 
                 var perfis = await _context.Transacaos.Where(x => roler.Transacoes.Contains(x.Id)).ToListAsync();
 
@@ -193,11 +197,11 @@ namespace Infra.Data.Respository
                 _context.Roles.Update(role);
                 _context.SaveChanges();
 
-                return Identidade.Success;
+                return Result<bool>.Sucesso(true);
             }
             catch (Exception e)
             {
-                return Identidade.Failed(new IdentidadeError() { Code = e.HResult.ToString(), Description = e.Message });
+                return Result<bool>.Failed(new List<Erros>() { new Erros { mensagem = e.Message } });
             }
         }
     }

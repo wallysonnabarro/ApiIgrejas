@@ -22,58 +22,85 @@ namespace ApiIgrejas.Controllers
         }
 
         [HttpPost("novo-perfil")]
-        public async Task<Identidade> NovaPermissao(PerfilDto dto)
+        public async Task<IActionResult> NovaPermissao(PerfilDto dto)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return BadRequest(string.Empty);
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
             var isToken = await authorization.DadosToken(token);
 
-            if (isToken.IdentidadeResultado!.Succeeded)
-            {
-                return await _roleRepository.Insert(dto, isToken.Email!);
-            }
+            var identidade = await _roleRepository.Insert(dto, isToken.Email!);
+
+            if (identidade.Succeeded)
+                return CreatedAtAction(nameof(NovaPermissao), new { id = identidade.Dados });
             else
-            {
-                return Identidade.Failed(new IdentidadeError { Description = isToken.IdentidadeResultado.Errors.Min(x => x.Description) });
-            }
+                return StatusCode(500, new { mensagem = identidade.Errors.Min(x => x.mensagem) });
         }
 
         [HttpPost("lista-paginada")]
-        public async Task<Result<Paginacao<PerfilListaPaginadaDto>>> ListaPaginada(PageWrapper dto)
+        public async Task<IActionResult> ListaPaginada(PageWrapper dto)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return BadRequest(string.Empty);
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
             var isToken = await authorization.DadosToken(token);
 
-            if (isToken.IdentidadeResultado!.Succeeded)
-            {
-                return await _roleRepository.Paginacao(dto, isToken.Email!);
-            }
+            var paginacao = await _roleRepository.Paginacao(dto, isToken.Email!);
+
+            if (paginacao.Succeeded)
+                return Ok(paginacao);
             else
-            {
-                return Result<Paginacao<PerfilListaPaginadaDto>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = isToken.IdentidadeResultado.Errors.Min(x => x.Description), ocorrencia = "", versao = "" } });
-            }
+                return StatusCode(500, new { mensagem = paginacao.Errors.Min(x => x.mensagem) });
         }
 
         [HttpPost("update-perfil")]
         public async Task<IActionResult> UpdatePerfil(UpdatePerfilDto dto)
         {
-            return Accepted(await _roleRepository.Update(dto));
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return BadRequest(string.Empty);
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var result = await _roleRepository.Update(dto);
+
+            if (result.Succeeded)
+                return Ok(result);
+            else
+                return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
         [HttpPost("perfil")]
-        public async Task<Result<PerfilListaPaginadaDto>> Perfil(PerfilUnicoDto dto)
+        public async Task<IActionResult> Perfil(PerfilUnicoDto dto)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return BadRequest(string.Empty);
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
             var isToken = await authorization.DadosToken(token);
 
-            if (isToken.IdentidadeResultado!.Succeeded)
-            {
-                return await _roleRepository.Get(dto.Perfils, isToken.Email!);
-            }
+            var result = await _roleRepository.Get(dto.Perfils, isToken.Email!);
+
+            if (result.Succeeded)
+                return Ok(result);
             else
-            {
-                return Result<PerfilListaPaginadaDto>.Failed(new List<Erros> {
-                    new Erros { codigo = "", mensagem = isToken.IdentidadeResultado.Errors.Min(x => x.Description), ocorrencia = "", versao = "" } });
-            }
+                return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
     }
 }

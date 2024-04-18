@@ -3,6 +3,7 @@ using Domain.DTOs;
 using Infra.Data.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Service.Interface;
 
 namespace ApiIgrejas.Controllers
 {
@@ -11,17 +12,34 @@ namespace ApiIgrejas.Controllers
     public class TribosController : ControllerBase
     {
         private readonly ITriboEquipesRepository _triboRepository;
+        private readonly IAuthorization authorization;
 
-        public TribosController(ITriboEquipesRepository triboRepository)
+        public TribosController(ITriboEquipesRepository triboRepository, IAuthorization authorization)
         {
             _triboRepository = triboRepository;
+            this.authorization = authorization;
         }
 
         [Authorize]
         [HttpPost("getAll")]
-        public async Task<Result<Paginacao<TriboEquipe>>> GetAll(PageWrapper wrapper)
+        public async Task<IActionResult> GetAll(PageWrapper wrapper)
         {
-            return await _triboRepository.Paginacao(wrapper);
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return BadRequest(string.Empty);
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var isToken = authorization.DadosToken(token);
+
+            var result = await _triboRepository.Paginacao(wrapper, isToken.Result.Email!);
+
+            if (result.Succeeded)
+                return Ok(result);
+            else
+                return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
         [Authorize]

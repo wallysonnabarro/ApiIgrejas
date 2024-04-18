@@ -9,24 +9,37 @@ namespace Infra.Data.Respository
     public class TriboEquipesRepository : ITriboEquipesRepository
     {
         private readonly ContextDb _db;
+        private readonly IContratoRepository _contratoRepository;
 
-        public TriboEquipesRepository(ContextDb db)
+        public TriboEquipesRepository(ContextDb db, IContratoRepository contratoRepository)
         {
             _db = db;
+            _contratoRepository = contratoRepository;
         }
 
-        public async Task<Result<TriboEquipe>> Detalhar(int id)
+        public async Task<Result<TriboEquipe>> Detalhar(int id, string email)
         {
             try
             {
-                var tribo = await _db.TribosEquipes.FirstOrDefaultAsync(x => x.Id == id);
-                if (tribo != null)
+                var contrato = await getContrato(email);
+
+                if (contrato.Succeeded)
                 {
-                    return Result<TriboEquipe>.Sucesso(tribo);
+                    var tribo = await _db.TribosEquipes
+                    .Include(x => x.Contrato)
+                    .FirstOrDefaultAsync(x => x.Id == id && x.Contrato.Id == contrato.Dados.Id);
+                    if (tribo != null)
+                    {
+                        return Result<TriboEquipe>.Sucesso(tribo);
+                    }
+                    else
+                    {
+                        return Result<TriboEquipe>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Tribo/equipe não encontrada.", ocorrencia = "", versao = "V1" } });
+                    }
                 }
                 else
                 {
-                    return Result<TriboEquipe>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Tribo/equipe não encontrada.", ocorrencia = "", versao = "V1" } });
+                    return Result<TriboEquipe>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Contrato não localizado.", ocorrencia = "", versao = "V1" } });
                 }
             }
             catch (Exception ex)
@@ -52,55 +65,88 @@ namespace Infra.Data.Respository
             }
         }
 
-        public async Task<Result<List<TriboSelectede>>> ListaSelected()
+        public async Task<Result<List<TriboSelectede>>> ListaSelected(string email)
         {
-            var tribo = await _db.TribosEquipes.Select(r => new TriboSelectede { Nome = r.Nome, Id = r.Id}).ToListAsync();
-            if (tribo != null)
+            var contrato = await getContrato(email);
+
+            if (contrato.Succeeded)
             {
-                return Result<List<TriboSelectede>>.Sucesso(tribo);
+                var tribo = await _db.TribosEquipes
+                    .Include(x => x.Contrato)
+                    .Where(x => x.Contrato.Id == contrato.Dados.Id)
+                    .Select(r => new TriboSelectede { Nome = r.Nome, Id = r.Id }).ToListAsync();
+                if (tribo != null)
+                {
+                    return Result<List<TriboSelectede>>.Sucesso(tribo);
+                }
+                else
+                {
+                    return Result<List<TriboSelectede>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Não foram localizadas tribos ou equipes. Por favor, entre em contato com o resposável do evento.", ocorrencia = "", versao = "V1" } });
+                }
             }
             else
             {
-                return Result<List<TriboSelectede>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Não foram localizadas tribos ou equipes. Por favor, entre em contato com o resposável do evento.", ocorrencia = "", versao = "V1" } });
+                return Result<List<TriboSelectede>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Contrato não localizado.", ocorrencia = "", versao = "V1" } });
             }
         }
 
-        public async Task<Result<TriboEquipe>> Novo(TriboNovoDto dto)
+        public async Task<Result<TriboEquipe>> Novo(TriboNovoDto dto, string email)
         {
-            var tribo = await _db.TribosEquipes.FirstOrDefaultAsync(x => x.Nome.Equals(dto.Nome));
-            if (tribo == null)
+            var contrato = await getContrato(email);
+
+            if (contrato.Succeeded)
             {
-                var novaTribo = new TriboEquipe { Nome = dto.Nome, Status = 1 };
-                _db.Add(novaTribo);
-                await _db.SaveChangesAsync();
-                return Result<TriboEquipe>.Sucesso(novaTribo);
+                var tribo = await _db.TribosEquipes
+                    .Include(x => x.Contrato)
+                    .FirstOrDefaultAsync(x => x.Nome.Equals(dto.Nome) && x.Contrato.Id == contrato.Dados.Id);
+
+                if (tribo == null)
+                {
+                    var novaTribo = new TriboEquipe { Nome = dto.Nome, Status = 1, Contrato = contrato.Dados };//atribuir o contrato na tribo
+                    _db.Add(novaTribo);
+                    await _db.SaveChangesAsync();
+                    return Result<TriboEquipe>.Sucesso(novaTribo);
+                }
+                else
+                {
+                    return Result<TriboEquipe>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Tribo já cadastrada.", ocorrencia = "", versao = "V1" } });
+                }
             }
             else
             {
-                return Result<TriboEquipe>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Tribo já cadastrada.", ocorrencia = "", versao = "V1" } });
+                return Result<TriboEquipe>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Contrato não localizado.", ocorrencia = "", versao = "V1" } });
             }
         }
 
-        public async Task<Result<Paginacao<TriboEquipe>>> Paginacao(PageWrapper wrapper)
+        public async Task<Result<Paginacao<TriboEquipe>>> Paginacao(PageWrapper wrapper, string email)
         {
             try
             {
-                var page = wrapper.Skip == 0 ? 0 : wrapper.Skip - 1;
+                var contrato = await getContrato(email);
 
-                var lista = await _db.TribosEquipes
-                    .Skip(page * wrapper.PageSize)
-                    .Take(wrapper.PageSize)
-                    .ToListAsync();
-
-                var qto = await Count();
-
-                return Result<Paginacao<TriboEquipe>>.Sucesso(new Paginacao<TriboEquipe>
+                if (contrato.Succeeded)
                 {
-                    Dados = lista,
-                    Count = await Count(),
-                    PageIndex = wrapper.Skip == 0 ? 1 : wrapper.Skip,
-                    PageSize = wrapper.PageSize
-                });
+                    var page = wrapper.Skip == 0 ? 0 : wrapper.Skip - 1;
+
+                    var lista = await _db.TribosEquipes
+                        .Include(x => x.Contrato)
+                        .Where(x => x.Contrato.Id == contrato.Dados.Id)
+                        .Skip(page * wrapper.PageSize)
+                        .Take(wrapper.PageSize)
+                        .ToListAsync();
+
+                    return Result<Paginacao<TriboEquipe>>.Sucesso(new Paginacao<TriboEquipe>
+                    {
+                        Dados = lista,
+                        Count = await Count(contrato.Dados),
+                        PageIndex = wrapper.Skip == 0 ? 1 : wrapper.Skip,
+                        PageSize = wrapper.PageSize
+                    });
+                }
+                else
+                {
+                    return Result<Paginacao<TriboEquipe>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Contrato não localizado.", ocorrencia = "", versao = "V1" } });
+                }
             }
             catch (Exception ex)
             {
@@ -108,9 +154,16 @@ namespace Infra.Data.Respository
             }
         }
 
-        private async Task<int> Count()
+        private async Task<int> Count(Contrato contrato)
         {
-            return await _db.TribosEquipes.CountAsync();
+            return await _db.TribosEquipes
+                .Where(x => x.Contrato.Id == contrato.Id)
+                .CountAsync();
+        }
+
+        private async Task<Result<Contrato>> getContrato(string email)
+        {
+            return await _contratoRepository.GetResult(email);
         }
     }
 }

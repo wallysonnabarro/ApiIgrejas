@@ -22,69 +22,118 @@ namespace ApiIgrejas.Controllers
         }
 
         [HttpPost("confirmar")]
-        public async Task<Result<bool>> Confirmar(PagamentoDto dto)
+        public async Task<IActionResult> Confirmar(PagamentoDto dto)
         {
+
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return BadRequest(string.Empty);
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
             var isToken = authorization.DadosToken(token);
 
-            if (isToken.Result.IdentidadeResultado!.Succeeded)
-            {
-                return await pagamentoRepository.Confirmar(dto, isToken.Result.Email!);
-            }
-            else
-            {
-                return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Usuário inválido.", ocorrencia = "", versao = "" } });
-            }
+            var result = await pagamentoRepository.Confirmar(dto, isToken.Result.Email!);
+
+            if (result.Succeeded)
+                return Ok(resultToken);
+            else return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
         [HttpPost("trasnferir")]
-        public async Task<Result<bool>> Transferir(TransferenciaDto dto)
+        public async Task<IActionResult> Transferir(TransferenciaDto dto)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return BadRequest(string.Empty);
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
             var isToken = authorization.DadosToken(token);
 
-            if (isToken.Result.IdentidadeResultado!.Succeeded)
-            {
-                return await pagamentoRepository.Transferidor(dto.IdRecebedor, dto.IdTransferidor, dto.Tipo, isToken.Result.Email!, dto.Siao, dto.Obs);
-            }
-            else
-            {
-                return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Usuário inválido.", ocorrencia = "", versao = "" } });
-            }
+            var result = await pagamentoRepository.Transferidor(dto.IdRecebedor, dto.IdTransferidor, dto.Tipo, isToken.Result.Email!, dto.Siao, dto.Obs);
+
+            if (result.Succeeded)
+                return Ok(resultToken);
+            else return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
         [HttpPost("cancelar")]
-        public async Task<Result<bool>> Cancelar(PagamentoCancelarDto dto)
+        public async Task<IActionResult> Cancelar(PagamentoCancelarDto dto)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return BadRequest(string.Empty);
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
             var isToken = authorization.DadosToken(token);
 
-            if (isToken.Result.IdentidadeResultado!.Succeeded)
-            {
-                return await pagamentoRepository.Cancelar(dto, isToken.Result.Email!);
-            }
-            else
-            {
-                return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Usuário inválido.", ocorrencia = "", versao = "" } });
-            }
+            var result = await pagamentoRepository.Cancelar(dto, isToken.Result.Email!);
+
+            if (result.Succeeded)
+                return Ok(resultToken);
+            else return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
         [HttpPost("buscar-pagamento")]
-        public async Task<Result<PagamentoAtualizarDto>> Buscar(PagamentoCancelarDto dto)
+        public async Task<IActionResult> Buscar(PagamentoCancelarDto dto)
         {
-            return await pagamentoRepository.BuscarAtualizar(dto);
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return BadRequest(string.Empty);
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var result = await pagamentoRepository.BuscarAtualizar(dto);
+
+            if (result.Succeeded)
+                return Ok(resultToken);
+            else return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
         [HttpPost("atualizar-pagamento")]
-        public async Task<Result<bool>> Atualizar(PagamentoAtualizarDto dto)
+        public async Task<IActionResult> Atualizar(PagamentoAtualizarDto dto)
         {
-            return await pagamentoRepository.Atualizar(dto);
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return BadRequest(string.Empty);
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var result = await pagamentoRepository.Atualizar(dto);
+
+            if (result.Succeeded)
+                return Ok(resultToken);
+            else return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
         [HttpGet("buscar-pagamentos/{id}")]
-        public async Task<Result<PagamentosDto>> GetPagamentos(int id)
+        public async Task<IActionResult> GetPagamentos(int id)
         {
-            return await pagamentoRepository.GetPagamento(id);
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return BadRequest(string.Empty);
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var result = await pagamentoRepository.GetPagamento(id);
+
+            if (result.Succeeded)
+                return Ok(resultToken);
+            else return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
     }
 }

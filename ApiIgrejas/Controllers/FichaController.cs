@@ -3,6 +3,7 @@ using Domain.DTOs;
 using Infra.Data.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Service.Interface;
 
 namespace ApiIgrejas.Controllers
 {
@@ -11,10 +12,12 @@ namespace ApiIgrejas.Controllers
     public class FichaController : ControllerBase
     {
         private readonly IFichaRepository _fichaRepository;
+        private readonly IAuthorization authorization;
 
-        public FichaController(IFichaRepository fichaRepository)
+        public FichaController(IFichaRepository fichaRepository, IAuthorization authorization)
         {
             _fichaRepository = fichaRepository;
+            this.authorization = authorization;
         }
 
         [HttpPost("novo-conectado")]
@@ -31,16 +34,41 @@ namespace ApiIgrejas.Controllers
 
         [Authorize]
         [HttpPost("lista-inscricoes")]
-        public async Task<Result<FichaPagamento>> GetFichasInscricoes(FichaParametros parametros)
+        public async Task<IActionResult> GetFichasInscricoes(FichaParametros parametros)
         {
-            return await _fichaRepository.GetFichasInscricoes(parametros);
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return BadRequest(string.Empty);
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var result = await _fichaRepository.GetFichasInscricoes(parametros);
+
+            if (result.Succeeded)
+                return Ok(resultToken);
+            else return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
         [Authorize]
         [HttpPost("lista-inscricoes-nao-confirmados")]
-        public async Task<Result<FichaPagamento>> GetFichasInscricoesNaoConfirmados(FichaParametros parametros)
+        public async Task<IActionResult> GetFichasInscricoesNaoConfirmados(FichaParametros parametros)
         {
-            return await _fichaRepository.GetFichasInscricoesNaoconfirmados(parametros);
+
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return BadRequest(string.Empty);
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var result = await _fichaRepository.GetFichasInscricoesNaoconfirmados(parametros);
+
+            if (result.Succeeded)
+                return Ok(resultToken);
+            else return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
     }
 }

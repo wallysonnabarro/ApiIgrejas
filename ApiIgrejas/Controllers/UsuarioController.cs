@@ -3,6 +3,7 @@ using Domain.DTOs;
 using Infra.Data.Context;
 using Infra.Data.Interfaces;
 using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Service.Interface;
@@ -93,17 +94,25 @@ namespace ApiIgrejas.Controllers
         }
 
         [HttpPost("paginacao")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> Paginar(PageWrapper dto)
         {
-            if (dto != null)
-            {
-                return Accepted(await _userManager.Paginacao(dto));
-            }
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return BadRequest(string.Empty);
+
+            var resultToken = await this._authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var isToken = _authorization.DadosToken(token);
+
+            var result = await _userManager.Paginacao(dto, isToken.Result.Email!);
+
+            if (result.Succeeded)
+                return Ok(result);
             else
-            {
-                return BadRequest("Dados inválidos.");
-            }
+                return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
         // //<summary>

@@ -22,70 +22,90 @@ namespace ApiIgrejas.Controllers
 
         [Authorize]
         [HttpPost("novo")]
-        public async Task<Result<bool>> Novo(AreaDto dto)
+        public async Task<IActionResult> Novo(AreaDto dto)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return BadRequest(string.Empty);
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
             var isToken = await authorization.DadosToken(token);
 
-            if (isToken.IdentidadeResultado!.Succeeded)
-            {
-                return await _areasRepository.Novo(dto, isToken.Email!);
-            }
+            var result = await _areasRepository.Novo(dto, isToken.Email!);
+
+            if (result.Succeeded)
+                return CreatedAtAction(nameof(Novo), result);
             else
-            {
-                return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Usuário inválido.", ocorrencia = "", versao = "" } });
-            }
+                return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
         [Authorize]
         [HttpPost("listar")]
-        public async Task<Result<Paginacao<Area>>> Paginado(PageWrapper wrapper)
+        public async Task<IActionResult> Paginado(PageWrapper wrapper)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return BadRequest(string.Empty);
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
             var isToken = await authorization.DadosToken(token);
 
-            if (isToken.IdentidadeResultado!.Succeeded)
-            {
-                return await _areasRepository.Paginacao(wrapper, isToken.Email!);
-            }
+            var result = await _areasRepository.Paginacao(wrapper, isToken.Email!);
+
+            if (result.Succeeded)
+                return Ok(result);
             else
-            {
-                return Result<Paginacao<Area>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Usuário inválido.", ocorrencia = "", versao = "" } });
-            }
+                return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
         [Authorize]
         [HttpPost("editar")]
-        public async Task<Result<bool>> Editar(Area area)
+        public async Task<IActionResult> Editar(Area area)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return BadRequest(string.Empty);
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
             var isToken = await authorization.DadosToken(token);
 
-            if (isToken.IdentidadeResultado!.Succeeded)
-            {
-                return await _areasRepository.Editar(area, isToken.Email);
-            }
+            var result = await _areasRepository.Editar(area, isToken.Email);
+
+            if (result.Succeeded)
+                return Ok(result);
             else
-            {
-                return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Usuário inválido.", ocorrencia = "", versao = "" } });
-            }
+                return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
         [Authorize]
         [HttpPost("detalhar/{id}")]
-        public async Task<Result<Area>> Detalhar(int id)
+        public async Task<IActionResult> Detalhar(int id)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return BadRequest(string.Empty);
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
             var isToken = await authorization.DadosToken(token);
 
-            if (isToken.IdentidadeResultado!.Succeeded)
-            {
-                return await _areasRepository.Detalhar(id, isToken.Email);
-            }
+            var result = await _areasRepository.Detalhar(id, isToken.Email);
+
+            if (result.Succeeded)
+                return Ok(result);
             else
-            {
-                return Result<Area>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Usuário inválido.", ocorrencia = "", versao = "" } });
-            }
+                return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
         [HttpGet("getAreas")]

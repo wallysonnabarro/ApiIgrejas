@@ -16,14 +16,16 @@ namespace Infra.Data.Respository
         private readonly IUserService _userServices;
         private readonly Mapper _mapper;
         private readonly IRoleRepository roleRepository;
+        private readonly IContratoRepository _contratoRepository;
 
-        public UsuarioRepository(ContextDb context, IUserService userServices, IRoleRepository roleRepository)
+        public UsuarioRepository(ContextDb context, IUserService userServices, IRoleRepository roleRepository, IContratoRepository contratoRepository)
         {
             _context = context;
             _userServices = userServices;
             var config = new MapperConfiguration(cfg => cfg.AddProfile<ContratoProfile>());
             _mapper = new Mapper(config);
             this.roleRepository = roleRepository;
+            _contratoRepository = contratoRepository;
         }
 
 
@@ -114,53 +116,70 @@ namespace Infra.Data.Respository
             return await _context.Users.CountAsync();
         }
 
-        public async Task<Result<Paginacao<UsuarioListDto>>> Paginacao(PageWrapper wrapper)
+        public async Task<Result<Paginacao<UsuarioListDto>>> Paginacao(PageWrapper wrapper, string email)
         {
             try
             {
-                var page = wrapper.Skip == 0 ? 0 : wrapper.Skip - 1;
+                var contrato = await getContrato(email);
 
-                var lista = await _context.Users
-                    .Include(x => x.TriboEquipe)
-                    .Select(x => new UsuarioListDto
-                    {
-                        Cpf = x.Cpf,
-                        Email = x.Email,
-                        Nome = x.Nome,
-                        TriboEquipe = x.TriboEquipe,
-                        UserName = x.UserName,
-                        PhoneNumber = x.PhoneNumber,
-                        IdRole = x.Role
-                    })
-                    .Skip(page * wrapper.PageSize)
-                    .Take(wrapper.PageSize)
-                    .ToListAsync();
-
-                foreach (var item in lista)
+                if (contrato.Succeeded)
                 {
-                    var role = await _context.Roles.Include(x => x.Transacoes)
-                        .Select(x => new PerfilListaPaginadaDto
+                    var page = wrapper.Skip == 0 ? 0 : wrapper.Skip - 1;
+
+                    var lista = await _context.Users
+                        .Include(x => x.TriboEquipe)
+                        .Select(x => new UsuarioListDto
                         {
+                            Cpf = x.Cpf,
+                            Email = x.Email,
                             Nome = x.Nome,
-                            Id = x.Id,
-                            Transacoes = x.Transacoes
+                            TriboEquipe = x.TriboEquipe,
+                            UserName = x.UserName,
+                            PhoneNumber = x.PhoneNumber,
+                            IdRole = x.Role
                         })
-                        .FirstOrDefaultAsync(x => x.Id == item.IdRole);
-                    item.Role = role!;
-                }
+                        .Skip(page * wrapper.PageSize)
+                        .Take(wrapper.PageSize)
+                        .ToListAsync();
 
-                return Result<Paginacao<UsuarioListDto>>.Sucesso(new Paginacao<UsuarioListDto>
+                    foreach (var item in lista)
+                    {
+                        var role = await _context.Roles
+                            .Include(x => x.Contrato)
+                            .Include(x => x.Transacoes)
+                            .Where(x => x.Contrato.Id == contrato.Dados.Id)
+                            .Select(x => new PerfilListaPaginadaDto
+                            {
+                                Nome = x.Nome,
+                                Id = x.Id,
+                                Transacoes = x.Transacoes
+                            })
+                            .FirstOrDefaultAsync(x => x.Id == item.IdRole);
+                        item.Role = role!;
+                    }
+
+                    return Result<Paginacao<UsuarioListDto>>.Sucesso(new Paginacao<UsuarioListDto>
+                    {
+                        Dados = lista,
+                        Count = await Count(),
+                        PageIndex = wrapper.Skip == 0 ? 1 : wrapper.Skip,
+                        PageSize = wrapper.PageSize
+                    });
+                }
+                else
                 {
-                    Dados = lista,
-                    Count = await Count(),
-                    PageIndex = wrapper.Skip == 0 ? 1 : wrapper.Skip,
-                    PageSize = wrapper.PageSize
-                });
+                    return Result<Paginacao<UsuarioListDto>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Contrato não localizado.", ocorrencia = "", versao = "V1" } });
+                }
             }
             catch (Exception ex)
             {
                 return Result<Paginacao<UsuarioListDto>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "V1" } });
             }
+        }
+
+        private async Task<Result<Contrato>> getContrato(string email)
+        {
+            return await _contratoRepository.GetResult(email);
         }
     }
 }

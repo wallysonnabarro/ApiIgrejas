@@ -3,6 +3,7 @@ using Domain.DTOs;
 using Infra.Data.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Service.Interface;
 
 namespace ApiIgrejas.Controllers
@@ -22,100 +23,145 @@ namespace ApiIgrejas.Controllers
 
         [Authorize]
         [HttpPost("novo")]
-        public async Task<Result<string>> Novo(SiaoNovoDto dto)
+        public async Task<IActionResult> Novo(SiaoNovoDto dto)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return BadRequest(string.Empty);
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
             var isToken = authorization.DadosToken(token);
 
-            if (isToken.Result.IdentidadeResultado!.Succeeded)
-            {
-                return await _siaoRepository.Novo(dto, isToken.Result.Email!);
-            }
+            var result = await _siaoRepository.Novo(dto, isToken.Result.Email!);
+
+            if (result.Succeeded)
+                return Created("Novo", result);
             else
-            {
-                return Result<string>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Usuário inválido.", ocorrencia = "", versao = "" } });
-            }
+                return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
         [Authorize]
         [HttpPost("listar")]
-        public async Task<Result<Paginacao<Evento>>> Paginado(PageWrapper wrapper)
+        public async Task<IActionResult> Paginado(PageWrapper wrapper)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return BadRequest(string.Empty);
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
             var isToken = authorization.DadosToken(token);
 
-            if (isToken.Result.IdentidadeResultado!.Succeeded)
-            {
-                return await _siaoRepository.Paginacao(wrapper, isToken.Result.Email!);
-            }
+            var result = await _siaoRepository.Paginacao(wrapper, isToken.Result.Email!);
+
+            if (result.Succeeded)
+                return Ok(result);
             else
-            {
-                return Result<Paginacao<Evento>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Usuário inválido.", ocorrencia = "", versao = "" } });
-            }
+                return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
         [Authorize]
         [HttpPost("editar")]
-        public async Task<Result<bool>> Editar(Evento siao)
+        public async Task<IActionResult> Editar(Evento siao)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return BadRequest(string.Empty);
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
             var isToken = authorization.DadosToken(token);
 
-            if (isToken.Result.IdentidadeResultado!.Succeeded)
-            {
-                return await _siaoRepository.Editar(siao, isToken.Result.Email!);
-            }
-            else
-            {
-                return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Usuário inválido.", ocorrencia = "", versao = "" } });
-            }
+            var result = await _siaoRepository.Editar(siao, isToken.Result.Email!);
+
+            if (result.Succeeded) return Ok(result);
+            else return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
         [Authorize]
         [HttpPost("{id}/editar-status/{status}")]
-        public async Task<Result<bool>> EditarStatus(int id, int status)
+        public async Task<IActionResult> EditarStatus(int id, int status)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return BadRequest(string.Empty);
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
             var isToken = authorization.DadosToken(token);
 
-            if (isToken.Result.IdentidadeResultado!.Succeeded)
-            {
-                return await _siaoRepository.EditarStatus(id, status, isToken.Result.Email!);
-            }
-            else
-            {
-                return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Usuário inválido.", ocorrencia = "", versao = "" } });
-            }
+            var result = await _siaoRepository.EditarStatus(id, status, isToken.Result.Email!);
+
+            if (result.Succeeded)
+                return Ok(result);
+            else return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
         [Authorize]
         [HttpPost("detalhar/{id}")]
-        public async Task<Result<Evento>> Detalhar(int id)
+        public async Task<IActionResult> Detalhar(int id)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return BadRequest(string.Empty);
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
             var isToken = authorization.DadosToken(token);
 
-            if (isToken.Result.IdentidadeResultado!.Succeeded)
-            {
-                return await _siaoRepository.Detalhar(id, isToken.Result.Email!);
-            }
-            else
-            {
-                return Result<Evento>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Usuário inválido.", ocorrencia = "", versao = "" } });
-            }
+            var result = await _siaoRepository.Detalhar(id, isToken.Result.Email!);
+
+            if (result.Succeeded)
+                return Ok(result);
+            else return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
         [Authorize]
         [HttpGet("evento-andamento")]
-        public async Task<Result<List<EventosAtivosDto>>> SiaoEmAndamento()
+        public async Task<IActionResult> SiaoEmAndamento()
         {
-            return await _siaoRepository.GetEmIniciado();
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return BadRequest(string.Empty);
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var result = await _siaoRepository.GetEmIniciado();
+
+            if (result.Succeeded)
+                return Ok(result);
+            else return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
         [HttpPost("confirmar-token")]
-        public async Task<Result<EventosAtivosDto>> confirmarToken(ConfirmarTokenDto dto)
+        public async Task<IActionResult> confirmarToken(ConfirmarTokenDto dto)
         {
-            return await _siaoRepository.ConfirmarToken(dto);
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return BadRequest(string.Empty);
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var result = await _siaoRepository.ConfirmarToken(dto);
+
+            if (result.Succeeded)
+                return Ok(result);
+            else return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
         //[HttpGet("gerarToken")]
