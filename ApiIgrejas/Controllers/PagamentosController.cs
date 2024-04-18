@@ -80,5 +80,11 @@ namespace ApiIgrejas.Controllers
         {
             return await pagamentoRepository.Atualizar(dto);
         }
+
+        [HttpGet("buscar-pagamentos/{id}")]
+        public async Task<Result<PagamentosDto>> GetPagamentos(int id)
+        {
+            return await pagamentoRepository.GetPagamento(id);
+        }
     }
 }

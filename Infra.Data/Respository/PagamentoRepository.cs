@@ -234,5 +234,45 @@ namespace Infra.Data.Respository
                 return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "" } });
             }
         }
+
+        public async Task<Result<PagamentosDto>> GetPagamento(int id)
+        {
+            try
+            {
+                var evento = await _db.Eventos.FirstOrDefaultAsync(e => e.Id == id);
+
+                if (evento != null)
+                {
+                    var pagamentos = await _db.Pagamentos
+                        .Include(e => e.Evento)
+                        .Where(p => p.Evento.Id == evento.Id).ToListAsync();
+
+                    if (pagamentos.Count == 0) return Result<PagamentosDto>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Este evento não contem pagamentos.", ocorrencia = "", versao = "" } });
+
+                    var primeiro = pagamentos.GroupBy(g => g.Evento.Id)
+                        .Select(s => new PagamentosDto
+                        {
+                            Credito = s.Sum(x => x.Credito ?? 0),
+                            Debito = s.Sum(x => x.Debito ?? 0),
+                            Dinheiro = s.Sum(x => x.Dinheiro ?? 0),
+                            CreditoParcelado = s.Sum(x => x.CreditoParcelado ?? 0),
+                            Pix = s.Sum(x => x.Pix ?? 0),
+                            Receber = s.Sum(x => x.Receber ?? 0),
+                            Descontar = s.Sum(x => x.Descontar ?? 0),
+                            Total = s.Sum(x => x.Credito ?? 0) + s.Sum(x => x.Debito ?? 0) + s.Sum(x => x.Dinheiro ?? 0) + s.Sum(x => x.CreditoParcelado ?? 0) + s.Sum(x => x.Pix ?? 0) + s.Sum(x => x.Receber ?? 0) + s.Sum(x => x.Descontar ?? 0)
+                        });
+
+                    return Result<PagamentosDto>.Sucesso(primeiro.First());
+                }
+                else
+                {
+                    return Result<PagamentosDto>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Evento não localizado.", ocorrencia = "", versao = "" } });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Result<PagamentosDto>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "" } });
+            }
+        }
     }
 }
