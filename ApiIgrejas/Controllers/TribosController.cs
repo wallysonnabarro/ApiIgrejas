@@ -44,29 +44,89 @@ namespace ApiIgrejas.Controllers
 
         [Authorize]
         [HttpPost("novo")]
-        public async Task<Result<TriboEquipe>> Novo(TriboNovoDto dto)
+        public async Task<IActionResult> Novo(TriboNovoDto dto)
         {
-            return await _triboRepository.Novo(dto);
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return BadRequest(string.Empty);
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var isToken = authorization.DadosToken(token);
+
+            var result = await _triboRepository.Novo(dto, isToken.Result.Email!);
+
+            if (result.Succeeded)
+                return Ok(result);
+            else
+                return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
         [Authorize]
         [HttpPost("detalhar/{id}")]
-        public async Task<Result<TriboEquipe>> Detalhar(int id)
+        public async Task<IActionResult> Detalhar(int id)
         {
-            return await _triboRepository.Detalhar(id);
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return BadRequest(string.Empty);
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var isToken = authorization.DadosToken(token);
+
+            var result = await _triboRepository.Detalhar(id, isToken.Result.Email!);
+
+            if (result.Succeeded)
+                return Ok(result);
+            else
+                return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
         [Authorize]
         [HttpPost("editar")]
-        public async Task<Result<TriboEquipe>> Editar(TriboEquipe tribo)
+        public async Task<IActionResult> Editar(TriboEquipe tribo)
         {
-            return await _triboRepository.Editar(tribo);
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return BadRequest(string.Empty);
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var isToken = authorization.DadosToken(token);
+
+            var result = await _triboRepository.Editar(tribo);
+
+            if (result.Succeeded)
+                return Ok(result);
+            else
+                return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
         [HttpGet("lista-selected")]
-        public async Task<Result<List<TriboSelectede>>> ListaSelected()
+        public async Task<IActionResult> ListaSelected()
         {
-            return await _triboRepository.ListaSelected();
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return BadRequest(string.Empty);
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var isToken = authorization.DadosToken(token);
+
+            var result = await _triboRepository.ListaSelected(isToken.Result.Email!);
+
+            if (result.Succeeded)
+                return Ok(result);
+            else
+                return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
     }
 }
