@@ -4,6 +4,7 @@ using Infra.Data.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interface;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ApiIgrejas.Controllers
 {
@@ -22,11 +23,13 @@ namespace ApiIgrejas.Controllers
 
         [Authorize]
         [HttpPost("novo")]
+        [SwaggerResponse(201, "Nova área", typeof(Result<bool>))]
+        [ProducesResponseType(typeof(Result<bool>), 201)]
         public async Task<IActionResult> Novo(AreaDto dto)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
 
-            if (token == null) return BadRequest(string.Empty);
+            if (token == null) return Unauthorized(new { mensagem = "Acesso não autorizado" });
 
             var resultToken = await this.authorization.IsAuthTokenValid(token);
 
@@ -39,16 +42,18 @@ namespace ApiIgrejas.Controllers
             if (result.Succeeded)
                 return CreatedAtAction(nameof(Novo), result);
             else
-                return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
+                return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
         [Authorize]
         [HttpPost("listar")]
+        [SwaggerResponse(200, "Paginação das áreas.", typeof(Result<Paginacao<Area>>))]
+        [ProducesResponseType(typeof(Result<Paginacao<Area>>), 200)]
         public async Task<IActionResult> Paginado(PageWrapper wrapper)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
 
-            if (token == null) return BadRequest(string.Empty);
+            if (token == null) return Unauthorized(new { mensagem = "Acesso não autorizado" });
 
             var resultToken = await this.authorization.IsAuthTokenValid(token);
 
@@ -61,16 +66,18 @@ namespace ApiIgrejas.Controllers
             if (result.Succeeded)
                 return Ok(result);
             else
-                return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
+                return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
         [Authorize]
         [HttpPost("editar")]
+        [SwaggerResponse(200, "Editar área", typeof(Result<bool>))]
+        [ProducesResponseType(typeof(Result<bool>), 200)]
         public async Task<IActionResult> Editar(Area area)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
 
-            if (token == null) return BadRequest(string.Empty);
+            if (token == null) return Unauthorized(new { mensagem = "Acesso não autorizado" });
 
             var resultToken = await this.authorization.IsAuthTokenValid(token);
 
@@ -83,16 +90,18 @@ namespace ApiIgrejas.Controllers
             if (result.Succeeded)
                 return Ok(result);
             else
-                return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
+                return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
         [Authorize]
         [HttpPost("detalhar/{id}")]
+        [SwaggerResponse(200, "Buscar área", typeof(Result<Area>))]
+        [ProducesResponseType(typeof(Result<Area>), 200)]
         public async Task<IActionResult> Detalhar(int id)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
 
-            if (token == null) return BadRequest(string.Empty);
+            if (token == null) return Unauthorized(new { mensagem = "Acesso não autorizado" });
 
             var resultToken = await this.authorization.IsAuthTokenValid(token);
 
@@ -105,13 +114,15 @@ namespace ApiIgrejas.Controllers
             if (result.Succeeded)
                 return Ok(result);
             else
-                return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
+                return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
-        [HttpGet("getAreas")]
-        public async Task<Result<List<Area>>> getAreas()
+        [HttpGet("getAreas/{token}")]
+        [SwaggerResponse(200, "Lista de áreas", typeof(Result<List<Area>>))]
+        [ProducesResponseType(typeof(Result<List<Area>>), 200)]
+        public async Task<Result<List<Area>>> getAreas(string token)
         {
-            return await _areasRepository.GetAll();
+            return await _areasRepository.GetAll(token);
         }
     }
 }

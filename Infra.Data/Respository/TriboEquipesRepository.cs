@@ -65,15 +65,17 @@ namespace Infra.Data.Respository
             }
         }
 
-        public async Task<Result<List<TriboSelectede>>> ListaSelected(string email)
+        public async Task<Result<List<TriboSelectede>>> ListaSelected(string token)
         {
-            var contrato = await getContrato(email);
+            var contrato = await _db.Eventos
+                .Include(x => x.Contrato)
+                .FirstOrDefaultAsync(x => x.Token.Equals(token));
 
-            if (contrato.Succeeded)
+            if (contrato != null)
             {
                 var tribo = await _db.TribosEquipes
                     .Include(x => x.Contrato)
-                    .Where(x => x.Contrato.Id == contrato.Dados.Id)
+                    .Where(x => x.Contrato.Id == contrato.Contrato.Id)
                     .Select(r => new TriboSelectede { Nome = r.Nome, Id = r.Id }).ToListAsync();
                 if (tribo != null)
                 {
@@ -165,5 +167,6 @@ namespace Infra.Data.Respository
         {
             return await _contratoRepository.GetResult(email);
         }
+
     }
 }

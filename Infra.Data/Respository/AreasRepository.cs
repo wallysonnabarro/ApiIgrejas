@@ -78,10 +78,13 @@ namespace Infra.Data.Respository
             }
         }
 
-        public async Task<Result<List<Area>>> GetAll()
+        public async Task<Result<List<Area>>> GetAll(string token)
         {
             try
             {
+                var contrato = await _db.Eventos.Include(c => c.Contrato)
+                    .FirstOrDefaultAsync(x => x.Token.Equals(token));
+                if (contrato == null) return Result<List<Area>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Entre em contato com o responsável do evento. Não foi localizado as áreas para este evento.", ocorrencia = "", versao = "V1" } });
                 return Result<List<Area>>.Sucesso(await _db.AreasSet.ToListAsync());
             }
             catch (Exception ex)

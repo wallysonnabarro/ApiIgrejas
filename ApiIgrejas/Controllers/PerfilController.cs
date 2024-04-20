@@ -4,6 +4,7 @@ using Infra.Data.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interface;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ApiIgrejas.Controllers
 {
@@ -22,11 +23,13 @@ namespace ApiIgrejas.Controllers
         }
 
         [HttpPost("novo-perfil")]
+        [SwaggerResponse(201, "Novo perfil", typeof(Result<int>))]
+        [ProducesResponseType(typeof(Result<int>), 201)]
         public async Task<IActionResult> NovaPermissao(PerfilDto dto)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
 
-            if (token == null) return BadRequest(string.Empty);
+            if (token == null) return Unauthorized(new { mensagem = "Acesso não autorizado" });
 
             var resultToken = await this.authorization.IsAuthTokenValid(token);
 
@@ -39,15 +42,17 @@ namespace ApiIgrejas.Controllers
             if (identidade.Succeeded)
                 return CreatedAtAction(nameof(NovaPermissao), new { id = identidade.Dados });
             else
-                return StatusCode(500, new { mensagem = identidade.Errors.Min(x => x.mensagem) });
+                return BadRequest(new { mensagem = identidade.Errors.Min(x => x.mensagem) });
         }
 
         [HttpPost("lista-paginada")]
+        [SwaggerResponse(200, "Lista perfil", typeof(Result<Paginacao<PerfilListaPaginadaDto>>))]
+        [ProducesResponseType(typeof(Result<Paginacao<PerfilListaPaginadaDto>>), 200)]
         public async Task<IActionResult> ListaPaginada(PageWrapper dto)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
 
-            if (token == null) return BadRequest(string.Empty);
+            if (token == null) return Unauthorized(new { mensagem = "Acesso não autorizado" });
 
             var resultToken = await this.authorization.IsAuthTokenValid(token);
 
@@ -60,15 +65,17 @@ namespace ApiIgrejas.Controllers
             if (paginacao.Succeeded)
                 return Ok(paginacao);
             else
-                return StatusCode(500, new { mensagem = paginacao.Errors.Min(x => x.mensagem) });
+                return BadRequest(new { mensagem = paginacao.Errors.Min(x => x.mensagem) });
         }
 
         [HttpPost("update-perfil")]
+        [SwaggerResponse(200, "Atualizar perfil", typeof(Result<bool>))]
+        [ProducesResponseType(typeof(Result<bool>), 200)]
         public async Task<IActionResult> UpdatePerfil(UpdatePerfilDto dto)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
 
-            if (token == null) return BadRequest(string.Empty);
+            if (token == null) return Unauthorized(new { mensagem = "Acesso não autorizado" });
 
             var resultToken = await this.authorization.IsAuthTokenValid(token);
 
@@ -79,15 +86,17 @@ namespace ApiIgrejas.Controllers
             if (result.Succeeded)
                 return Ok(result);
             else
-                return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
+                return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
         [HttpPost("perfil")]
+        [SwaggerResponse(200, "Buscar perfil", typeof(Result<PerfilListaPaginadaDto>))]
+        [ProducesResponseType(typeof(Result<PerfilListaPaginadaDto>), 200)]
         public async Task<IActionResult> Perfil(PerfilUnicoDto dto)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
 
-            if (token == null) return BadRequest(string.Empty);
+            if (token == null) return Unauthorized(new { mensagem = "Acesso não autorizado" });
 
             var resultToken = await this.authorization.IsAuthTokenValid(token);
 
@@ -100,7 +109,7 @@ namespace ApiIgrejas.Controllers
             if (result.Succeeded)
                 return Ok(result);
             else
-                return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
+                return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
     }
 }

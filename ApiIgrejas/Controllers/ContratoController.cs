@@ -1,8 +1,10 @@
-﻿using Domain.DTOs;
+﻿using Domain.Dominio;
+using Domain.DTOs;
 using Infra.Data.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interface;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ApiIgrejas.Controllers
 {
@@ -21,11 +23,13 @@ namespace ApiIgrejas.Controllers
         }
 
         [HttpPost("novo")]
+        [SwaggerResponse(201, "Novo contrato", typeof(Result<Contrato>))]
+        [ProducesResponseType(typeof(Result<Contrato>), 201)]
         public async Task<IActionResult> NovoContrato(ContratoDto dto)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
 
-            if (token == null) return BadRequest(string.Empty);
+            if (token == null) return Unauthorized(new { mensagem = "Acesso não autorizado" });
 
             var resultToken = await this.authorization.IsAuthTokenValid(token);
 
@@ -36,15 +40,17 @@ namespace ApiIgrejas.Controllers
             if (result.Succeeded)
                 return Created("Result", result);
             else
-                return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
+                return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
         [HttpPost("listar-contratos")]
+        [SwaggerResponse(200, "Paginação de contratos", typeof(Result<Paginacao<Contrato>>))]
+        [ProducesResponseType(typeof(Result<Paginacao<Contrato>>), 200)]
         public async Task<IActionResult> ListarContratos(PageWrapper wrapper)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
 
-            if (token == null) return BadRequest(string.Empty);
+            if (token == null) return Unauthorized(new { mensagem = "Acesso não autorizado" });
 
             var resultToken = await this.authorization.IsAuthTokenValid(token);
 
@@ -55,15 +61,17 @@ namespace ApiIgrejas.Controllers
             if (result.Succeeded)
                 return Ok(result);
             else
-                return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
+                return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
         [HttpPost("update/{id}")]
+        [SwaggerResponse(200, "Atualização do contrato", typeof(Result<Contrato>))]
+        [ProducesResponseType(typeof(Result<Contrato>), 200)]
         public async Task<IActionResult> UpdateContrato(ContratoDto dto, int id)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
 
-            if (token == null) return BadRequest(string.Empty);
+            if (token == null) return Unauthorized(new { mensagem = "Acesso não autorizado" });
 
             var resultToken = await this.authorization.IsAuthTokenValid(token);
 
@@ -74,7 +82,7 @@ namespace ApiIgrejas.Controllers
             if (result.Succeeded)
                 return Ok(result);
             else
-                return StatusCode(500, new { mensagem = result.Errors.Min(x => x.mensagem) });
+                return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
     }
 }
