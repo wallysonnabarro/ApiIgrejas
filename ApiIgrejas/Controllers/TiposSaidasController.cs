@@ -11,12 +11,12 @@ namespace ApiIgrejas.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class ConfiguracoesController : ControllerBase
+    public class TiposSaidasController : ControllerBase
     {
         private readonly IConfiguracoes _configuration;
         private readonly IAuthorization authorization;
 
-        public ConfiguracoesController(IConfiguracoes configuration, IAuthorization authorization)
+        public TiposSaidasController(IConfiguracoes configuration, IAuthorization authorization)
         {
             _configuration = configuration;
             this.authorization = authorization;
@@ -46,7 +46,6 @@ namespace ApiIgrejas.Controllers
         }
 
 
-        [Authorize]
         [HttpPost("listar")]
         [SwaggerResponse(200, "Paginação das tipos de saída.", typeof(Result<Paginacao<TiposSaidaDto>>))]
         [ProducesResponseType(typeof(Result<Paginacao<TiposSaidaDto>>), 200)]
@@ -70,7 +69,29 @@ namespace ApiIgrejas.Controllers
                 return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
-        [Authorize]
+        [HttpGet("listar-todos")]
+        [SwaggerResponse(200, "Lista tipos de saída.", typeof(Result<List<TiposSaidaDto>>))]
+        [ProducesResponseType(typeof(Result<List<TiposSaidaDto>>), 200)]
+        public async Task<IActionResult> ListarTodos()
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var isToken = await authorization.DadosToken(token);
+
+            var result = await _configuration.ListarTodos(isToken.Email!);
+
+            if (result.Succeeded)
+                return Ok(result);
+            else
+                return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
+        }
+
         [HttpPost("editar")]
         [SwaggerResponse(200, "Editar tipo de saída", typeof(Result<string>))]
         [ProducesResponseType(typeof(Result<string>), 200)]
@@ -94,7 +115,6 @@ namespace ApiIgrejas.Controllers
                 return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
-        [Authorize]
         [HttpGet("detalhar/{id}")]
         [SwaggerResponse(200, "Buscar tipo de saída", typeof(Result<TiposSaidaDto>))]
         [ProducesResponseType(typeof(Result<TiposSaidaDto>), 200)]

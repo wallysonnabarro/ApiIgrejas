@@ -142,6 +142,34 @@ namespace Infra.Data.Respository
                 return Result<Paginacao<TiposSaidaDto>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "V1" } });
             }
         }
+        
+        public async Task<Result<List<TiposSaidaDto>>> ListarTodos(string email)
+        {
+            try
+            {
+                var contrato = await _contratoRepository.GetResult(email);
+
+                if (contrato.Succeeded)
+                {
+                    var lista = await _db.TiposSaidas
+                        .Include(x => x.Contrato)
+                        .Where(x => x.Contrato.Id == contrato.Dados.Id)
+                        .Select(s => new TiposSaidaDto { Nome = s.Nome, Id = s.Id })
+                        .OrderByDescending(x => x.Id)
+                        .ToListAsync();
+
+                    return Result<List<TiposSaidaDto>>.Sucesso(lista);
+                }
+                else
+                {
+                    return Result<List<TiposSaidaDto>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = contrato.Errors.Min(x => x.mensagem), ocorrencia = "", versao = "V1" } });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Result<List<TiposSaidaDto>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "V1" } });
+            }
+        }
 
         private async Task<int> Count()
         {
