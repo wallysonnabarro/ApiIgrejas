@@ -151,7 +151,7 @@ namespace Infra.Data.Respository
             {
                 var siao = await _db.Eventos.Where(s => (s.Status == 1 || s.Status == 4))
                     .Select(s => new EventosAtivosDto { Nome = s.Nome, Id = s.Id }).ToListAsync();
-                if (siao == null)
+                if (siao.Count() == 0)
                 {
                     return Result<List<EventosAtivosDto>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Nenhum evento ativo.", ocorrencia = "", versao = "V1" } });
                 }

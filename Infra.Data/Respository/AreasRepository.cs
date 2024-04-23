@@ -165,6 +165,7 @@ namespace Infra.Data.Respository
                 return Result<Paginacao<Area>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "V1" } });
             }
         }
+
         private async Task<int> Count()
         {
             return await _db.Eventos.CountAsync();

@@ -23,6 +23,7 @@ namespace Infra.CrossCutting.IoC
             services.AddScoped<IFichaRepository, FichaRepository>();
             services.AddScoped<IPagamentoRepository, PagamentoRepository>();
             services.AddScoped<IRelatoriosRepository, RelatoriosRepository>();
+            services.AddScoped<IConfiguracoes, Configuracoes>();
 
             //scoped services
             services.AddScoped<IAuthenticationServices, AuthenticationService>();
