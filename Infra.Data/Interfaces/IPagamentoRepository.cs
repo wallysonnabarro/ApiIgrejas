@@ -11,5 +11,8 @@ namespace Infra.Data.Interfaces
         Task<Result<PagamentoAtualizarDto>> BuscarAtualizar(PagamentoCancelarDto dto);
         Task<Result<PagamentosDto>> GetPagamento(int id);
         Task<Result<bool>> Transferidor(int idRecebedor, int idTransferidor, int tipo, string EmailUser, int siao, string obs);
+
+
+        Task<Result<string>> RegistrarListaSaida(List<ItemPagamentoSaidaDto> dto, string EmailUser);
     }
 }

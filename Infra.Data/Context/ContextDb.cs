@@ -22,5 +22,6 @@ namespace Infra.Data.Context
         public DbSet<Pagamento> Pagamentos { get; set; }
         public DbSet<DadosReaderRelatorio> DadosReaderRelatorios { get; set; }
         public DbSet<TipoSaida> TiposSaidas { get; set; }
+        public DbSet<PagamentoSaida> PagamentoSaidas { get; set; }
     }
 }

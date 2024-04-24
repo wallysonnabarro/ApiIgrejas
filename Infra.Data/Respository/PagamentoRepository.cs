@@ -1,5 +1,8 @@
-﻿using Domain.Dominio;
+﻿using AutoMapper;
+using Domain.Command;
+using Domain.Dominio;
 using Domain.DTOs;
+using Domain.Mappers;
 using Infra.Data.Context;
 using Infra.Data.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -9,9 +12,12 @@ namespace Infra.Data.Respository
     public class PagamentoRepository : IPagamentoRepository
     {
         private readonly ContextDb _db;
+        private readonly Mapper _mapper;
 
         public PagamentoRepository(ContextDb db)
         {
+            var config = new MapperConfiguration(cfg => cfg.AddProfile<ContratoProfile>());
+            _mapper = new Mapper(config);
             _db = db;
         }
 
@@ -272,6 +278,24 @@ namespace Infra.Data.Respository
             catch (Exception ex)
             {
                 return Result<PagamentosDto>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "" } });
+            }
+        }
+
+        public async Task<Result<string>> RegistrarListaSaida(List<ItemPagamentoSaidaDto> dto, string EmailUser)
+        {
+            try
+            {
+                var pagamentos = _mapper.Map<List<PagamentoSaida>>(dto);
+
+                await _db.PagamentoSaidas.AddRangeAsync(pagamentos);
+
+                await _db.SaveChangesAsync();
+
+                return Result<string>.Sucesso("Lista de pagamentos registrada com sucesso.");
+            }
+            catch (Exception ex)
+            {
+                return Result<string>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "" } });
             }
         }
     }

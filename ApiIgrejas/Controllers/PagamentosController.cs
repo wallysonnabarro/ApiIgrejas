@@ -148,5 +148,28 @@ namespace ApiIgrejas.Controllers
                 return Ok(result);
             else return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
+
+        [HttpPost("registra-lista-saida")]
+        [SwaggerResponse(201, "Novo lista de saida de pagamentos", typeof(Result<string>))]
+        [ProducesResponseType(typeof(Result<string>), 201)]
+        public async Task<IActionResult> RegistrarListaSaida(List<ItemPagamentoSaidaDto> dto)
+        {
+
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var isToken = authorization.DadosToken(token);
+
+            var result = await pagamentoRepository.RegistrarListaSaida(dto, isToken.Result.Email!);
+
+            if (result.Succeeded)
+                return Created("Confirmar", result);
+            else return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
+        }
     }
 }
