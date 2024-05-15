@@ -33,6 +33,7 @@ namespace Infra.CrossCutting.IoC
             services.AddScoped<IEventoServices, EventoServices>();
             services.AddScoped<IRelatorioServices, RelatorioServices>();
             services.AddScoped<IRenderType, RenderTypeServices>();
+            services.AddScoped<IReportServices, ReportServices>();
 
             //AutoMapper
             services.AddAutoMapper(typeof(ContratoProfile));

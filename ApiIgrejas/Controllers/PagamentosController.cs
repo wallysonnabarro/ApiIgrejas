@@ -15,11 +15,15 @@ namespace ApiIgrejas.Controllers
     {
         private readonly IAuthorization authorization;
         private readonly IPagamentoRepository pagamentoRepository;
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IReportServices _reportServices;
 
-        public PagamentosController(IAuthorization authorization, IPagamentoRepository pagamentoRepository)
+        public PagamentosController(IAuthorization authorization, IPagamentoRepository pagamentoRepository, IWebHostEnvironment webHostEnvironment, IReportServices reportServices)
         {
             this.authorization = authorization;
             this.pagamentoRepository = pagamentoRepository;
+            _webHostEnvironment = webHostEnvironment;
+            _reportServices = reportServices;
         }
 
         [HttpPost("confirmar")]
@@ -170,6 +174,48 @@ namespace ApiIgrejas.Controllers
             if (result.Succeeded)
                 return Created("Confirmar", result);
             else return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
+        }
+
+
+        [HttpGet("pagamentos-voluntarios-excel/{id}")]
+        [SwaggerResponse(201, "Excel com dados dos pagamentos", typeof(Result<byte[]>))]
+        [ProducesResponseType(typeof(Result<byte[]>), 201)]
+        public async Task<IActionResult> ExcelReportPgamentosVoluntarios(int id)
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            //Pegar a lista vinculada ao envento com todos os inscritos e os pagamentos
+            var lista = await pagamentoRepository.ListaPagamentoVoluntariosExcel(id);
+
+            if (lista.Succeeded) return Ok(lista.Dados);
+            else return BadRequest(new { mensagem = lista.Errors.Min(x => x.mensagem) });
+        }
+
+
+        [HttpGet("pagamentos-conectados-excel/{id}")]
+        [SwaggerResponse(201, "Excel com dados dos pagamentos", typeof(Result<byte[]>))]
+        [ProducesResponseType(typeof(Result<byte[]>), 201)]
+        public async Task<IActionResult> ExcelReportPgamentosConectados(int id)
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            //Pegar a lista vinculada ao envento com todos os inscritos e os pagamentos
+            var lista = await pagamentoRepository.ListaPagamentoConcetadosExcel(id);
+
+            if (lista.Succeeded) return Ok(lista.Dados);
+            else return BadRequest(new { mensagem = lista.Errors.Min(x => x.mensagem) });
         }
     }
 }

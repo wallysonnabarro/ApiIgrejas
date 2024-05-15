@@ -14,5 +14,8 @@ namespace Infra.Data.Interfaces
 
 
         Task<Result<string>> RegistrarListaSaida(List<ItemPagamentoSaidaDto> dto, string EmailUser);
+        Task<Result<List<ListPagamento>>> ListaPagamentoVoluntariosExcel(int id);
+        Task<Result<List<ListPagamento>>> ListaPagamentoConcetadosExcel(int id);
+
     }
 }

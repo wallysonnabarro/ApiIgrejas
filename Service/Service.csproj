@@ -7,13 +7,29 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Rotativas\" />
+    <Compile Remove="Rotativas\**" />
+    <EmbeddedResource Remove="Rotativas\**" />
+    <None Remove="Rotativas\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Reports\dsPagamento.xsd" />
+    <None Remove="Reports\rdPagamentoVoluntarios.rdlc" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Reports\dsPagamento.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsPagamento.Designer.cs</LastGenOutput>
+    </Content>
+    <Content Include="Reports\rdPagamentoVoluntarios.rdlc" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AspNetCore.Reporting" Version="2.1.0" />
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="AutoMapper.Collection" Version="10.0.0" />
+    <PackageReference Include="Cquential.Microsoft.ReportViewer.ProcessingObjectModel" Version="10.0.40219.1" />
     <PackageReference Include="FluentValidation" Version="11.9.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="8.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
@@ -26,6 +42,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.ReportViewer.Common" Version="10.0.40219.1" />
+    <PackageReference Include="Microsoft.ReportViewer.WebForms" Version="10.0.40219.1" />
     <PackageReference Include="NPOI" Version="2.7.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.4.1" />
     <PackageReference Include="System.Security.Cryptography.Cng" Version="5.0.0" />

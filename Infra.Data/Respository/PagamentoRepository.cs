@@ -285,7 +285,21 @@ namespace Infra.Data.Respository
         {
             try
             {
-                var pagamentos = _mapper.Map<List<PagamentoSaida>>(dto);
+                List<PagamentoSaida> pagamentos = new List<PagamentoSaida>();
+
+                foreach (var item in dto)
+                {
+                    PagamentoSaida saida = new()
+                    {
+                        Descricao = item.Descricao,
+                        FormaPagamento = item.FormaPagamento,
+                        Tipo = item.Tipo,
+                        Valor = item.Valor,
+                        TipoNome = item.TipoNome
+                    };
+
+                    pagamentos.Add(saida);
+                }
 
                 await _db.PagamentoSaidas.AddRangeAsync(pagamentos);
 
@@ -296,6 +310,94 @@ namespace Infra.Data.Respository
             catch (Exception ex)
             {
                 return Result<string>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "" } });
+            }
+        }
+
+        public async Task<Result<List<ListPagamento>>> ListaPagamentoVoluntariosExcel(int id)
+        {
+
+            try
+            {
+                if (await _db.Pagamentos.Include(x => x.Evento).AnyAsync(x => x.Evento.Id == id))
+                {
+                    var lista = await _db.Pagamentos
+                        .Include(x => x.Evento)
+                        .Include(x => x.Voluntario)
+                        .ThenInclude(v => v.Tribo)
+                        .Where(x => x.Evento.Id == id && x.Voluntario!.Confirmacao == 1)
+                        .Select(x => new ListPagamento
+                        {
+                            Siao = x.Evento.Nome,
+                            Nome = x.Voluntario!.Nome,
+                            Tribo = x.Voluntario.Tribo.Nome,
+                            Sexo = x.Voluntario.Sexo == 1 ? "Masculino" : "Feminino",
+                            dinheiro = x.Dinheiro ?? 0,
+                            debito = x.Debito ?? 0,
+                            credVista = x.Credito ?? 0,
+                            credParcelado = x.CreditoParcelado ?? 0,
+                            tedPix = x.Pix ?? 0,
+                            descontar = x.Descontar ?? 0,
+                            receber = x.Receber ?? 0,
+                            obs = x.Observacao == null ? "" : x.Observacao
+                        })
+                        .OrderBy(x => x.Tribo)
+                        .ToListAsync();
+
+
+                    return Result<List<ListPagamento>>.Sucesso(lista);
+                } else
+                {
+                    return Result<List<ListPagamento>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "O evento não foi localizado.", ocorrencia = "", versao = "" } });
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return Result<List<ListPagamento>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "" } });
+            }
+        }
+
+        public async Task<Result<List<ListPagamento>>> ListaPagamentoConcetadosExcel(int id)
+        {
+            try
+            {
+                if (await _db.Pagamentos.Include(x => x.Evento).AnyAsync(x => x.Evento.Id == id))
+                {
+                    var lista = await _db.Pagamentos
+                        .Include(x => x.Evento)
+                        .Include(x => x.FichaConsumidor)
+                        .ThenInclude(v => v.Tribo)
+                        .Where(x => x.Evento.Id == id && x.FichaConsumidor!.Confirmacao == 1)
+                        .Select(x => new ListPagamento
+                        {
+                            Siao = x.Evento.Nome,
+                            Nome = x.FichaConsumidor!.Nome,
+                            Tribo = x.FichaConsumidor.Tribo.Nome,
+                            Sexo = x.FichaConsumidor.Sexo == 1 ? "Masculino" : "Feminino",
+                            dinheiro = x.Dinheiro ?? 0,
+                            debito = x.Debito ?? 0,
+                            credVista = x.Credito ?? 0,
+                            credParcelado = x.CreditoParcelado ?? 0,
+                            tedPix = x.Pix ?? 0,
+                            descontar = x.Descontar ?? 0,
+                            receber = x.Receber ?? 0,
+                            obs = x.Observacao == null ? "" : x.Observacao
+                        })
+                        .OrderBy(x => x.Tribo)
+                        .ToListAsync();
+
+
+                    return Result<List<ListPagamento>>.Sucesso(lista);
+                }
+                else
+                {
+                    return Result<List<ListPagamento>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "O evento não foi localizado.", ocorrencia = "", versao = "" } });
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return Result<List<ListPagamento>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "" } });
             }
         }
     }

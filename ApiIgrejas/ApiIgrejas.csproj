@@ -7,6 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\dsPagamento.Designer.cs" />
+    <Content Remove="wwwroot\dsPagamento.xsc" />
+    <Content Remove="wwwroot\dsPagamento.xsd" />
+    <Content Remove="wwwroot\dsPagamento.xss" />
+    <Content Remove="wwwroot\rdPagamentosVoluntarios.rdlc" />
+    <Content Remove="wwwroot\reports\dsPagamento.xsc" />
+    <Content Remove="wwwroot\reports\dsPagamento.xss" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="imgs\logo.png" />
     <None Remove="imgs\siao.png" />
   </ItemGroup>
@@ -24,6 +34,7 @@
     <PackageReference Include="AspNetCore.Reporting" Version="2.1.0" />
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="AutoMapper.Collection" Version="10.0.0" />
+    <PackageReference Include="Cquential.Microsoft.ReportViewer.ProcessingObjectModel" Version="10.0.40219.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="8.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
@@ -38,6 +49,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="7.4.1" />
+    <PackageReference Include="Microsoft.ReportViewer.Common" Version="10.0.40219.1" />
+    <PackageReference Include="Microsoft.ReportViewer.WebForms" Version="10.0.40219.1" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.5.0" />
@@ -50,6 +63,23 @@
     <ProjectReference Include="..\Infra.CrossCutting\Infra.CrossCutting.csproj" />
     <ProjectReference Include="..\Infra.Data\Infra.Data.csproj" />
     <ProjectReference Include="..\Service\Service.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\reports\dsPagamento.xsc" />
+    <None Include="wwwroot\reports\dsPagamento.xss" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot\reports\dsPagamento.xsd">
+      <SubType>Designer</SubType>
+      <LastGenOutput>dsPagamento.Designer.cs</LastGenOutput>
+      <Generator>MSDataSetGenerator</Generator>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\reports\rdPagamentoVoluntarios.rdlc">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
