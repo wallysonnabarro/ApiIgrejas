@@ -410,6 +410,9 @@ namespace Infra.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("EventoId")
+                        .HasColumnType("int");
+
                     b.Property<string>("FormaPagamento")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -424,6 +427,8 @@ namespace Infra.Data.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("EventoId");
 
                     b.ToTable("PagamentoSaidas");
                 });
@@ -766,6 +771,17 @@ namespace Infra.Data.Migrations
                     b.Navigation("Usuario");
 
                     b.Navigation("Voluntario");
+                });
+
+            modelBuilder.Entity("Domain.Dominio.PagamentoSaida", b =>
+                {
+                    b.HasOne("Domain.Dominio.Evento", "Evento")
+                        .WithMany()
+                        .HasForeignKey("EventoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Evento");
                 });
 
             modelBuilder.Entity("Domain.Dominio.Role", b =>

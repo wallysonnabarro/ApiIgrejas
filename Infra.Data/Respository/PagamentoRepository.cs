@@ -6,6 +6,7 @@ using Domain.Mappers;
 using Infra.Data.Context;
 using Infra.Data.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace Infra.Data.Respository
 {
@@ -241,7 +242,7 @@ namespace Infra.Data.Respository
             }
         }
 
-        public async Task<Result<PagamentosDto>> GetPagamento(int id)
+        public async Task<Result<List<PagamentosDto>>> GetPagamento(int id)
         {
             try
             {
@@ -253,11 +254,10 @@ namespace Infra.Data.Respository
                         .Include(e => e.Evento)
                         .Where(p => p.Evento.Id == evento.Id).ToListAsync();
 
-                    if (pagamentos.Count == 0) return Result<PagamentosDto>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Este evento não contem pagamentos.", ocorrencia = "", versao = "" } });
-
                     var primeiro = pagamentos.GroupBy(g => g.Evento.Id)
                         .Select(s => new PagamentosDto
                         {
+                            Tipo = 1,
                             Credito = s.Sum(x => x.Credito ?? 0),
                             Debito = s.Sum(x => x.Debito ?? 0),
                             Dinheiro = s.Sum(x => x.Dinheiro ?? 0),
@@ -268,24 +268,34 @@ namespace Infra.Data.Respository
                             Total = s.Sum(x => x.Credito ?? 0) + s.Sum(x => x.Debito ?? 0) + s.Sum(x => x.Dinheiro ?? 0) + s.Sum(x => x.CreditoParcelado ?? 0) + s.Sum(x => x.Pix ?? 0) + s.Sum(x => x.Receber ?? 0) + s.Sum(x => x.Descontar ?? 0)
                         });
 
-                    return Result<PagamentosDto>.Sucesso(primeiro.First());
+                    //var pagSaida = await _db.PagamentoSaidas
+                    //    .Include(x => x.)
+
+
+
+                    List<PagamentosDto> lista = new List<PagamentosDto>();
+                    lista.Add(primeiro.First());
+
+                    return Result<List<PagamentosDto>>.Sucesso(lista);
                 }
                 else
                 {
-                    return Result<PagamentosDto>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Evento não localizado.", ocorrencia = "", versao = "" } });
+                    return Result<List<PagamentosDto>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Evento não localizado.", ocorrencia = "", versao = "" } });
                 }
             }
             catch (Exception ex)
             {
-                return Result<PagamentosDto>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "" } });
+                return Result<List<PagamentosDto>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "" } });
             }
         }
 
-        public async Task<Result<string>> RegistrarListaSaida(List<ItemPagamentoSaidaDto> dto, string EmailUser)
+        public async Task<Result<string>> RegistrarListaSaida(List<ItemPagamentoSaidaDto> dto, string EmailUser, int id)
         {
             try
             {
                 List<PagamentoSaida> pagamentos = new List<PagamentoSaida>();
+
+                var evento = await _db.Eventos.FirstOrDefaultAsync(x => x.Id == id);
 
                 foreach (var item in dto)
                 {
@@ -295,7 +305,8 @@ namespace Infra.Data.Respository
                         FormaPagamento = item.FormaPagamento,
                         Tipo = item.Tipo,
                         Valor = item.Valor,
-                        TipoNome = item.TipoNome
+                        TipoNome = item.TipoNome,
+                        Evento = evento
                     };
 
                     pagamentos.Add(saida);
@@ -345,7 +356,8 @@ namespace Infra.Data.Respository
 
 
                     return Result<List<ListPagamento>>.Sucesso(lista);
-                } else
+                }
+                else
                 {
                     return Result<List<ListPagamento>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "O evento não foi localizado.", ocorrencia = "", versao = "" } });
                 }

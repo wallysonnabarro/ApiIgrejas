@@ -8,5 +8,6 @@
         public required decimal Valor { get; set; }
         public required int Tipo { get; set; }
         public string? TipoNome { get; set; }
+        public Evento Evento { get; set; }
     }
 }

@@ -134,8 +134,8 @@ namespace ApiIgrejas.Controllers
         }
 
         [HttpGet("buscar-pagamentos/{id}")]
-        [SwaggerResponse(200, "Buscar pagamento", typeof(Result<PagamentoDto>))]
-        [ProducesResponseType(typeof(Result<PagamentoDto>), 200)]
+        [SwaggerResponse(200, "Buscar pagamento", typeof(Result<List<PagamentosDto>>))]
+        [ProducesResponseType(typeof(Result<List<PagamentosDto>>), 200)]
         public async Task<IActionResult> GetPagamentos(int id)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
@@ -153,10 +153,10 @@ namespace ApiIgrejas.Controllers
             else return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
-        [HttpPost("registra-lista-saida")]
+        [HttpPost("registra-lista-saida/{id}")]
         [SwaggerResponse(201, "Novo lista de saida de pagamentos", typeof(Result<string>))]
         [ProducesResponseType(typeof(Result<string>), 201)]
-        public async Task<IActionResult> RegistrarListaSaida(List<ItemPagamentoSaidaDto> dto)
+        public async Task<IActionResult> RegistrarListaSaida(int id, List<ItemPagamentoSaidaDto> dto)
         {
 
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
@@ -169,7 +169,7 @@ namespace ApiIgrejas.Controllers
 
             var isToken = authorization.DadosToken(token);
 
-            var result = await pagamentoRepository.RegistrarListaSaida(dto, isToken.Result.Email!);
+            var result = await pagamentoRepository.RegistrarListaSaida(dto, isToken.Result.Email!, id);
 
             if (result.Succeeded)
                 return Created("Confirmar", result);

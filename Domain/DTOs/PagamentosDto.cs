@@ -10,5 +10,6 @@
         public decimal Receber { get; set; }
         public decimal Descontar { get; set; }
         public decimal Total { get; set; }
+        public decimal Tipo { get; set; }
     }
 }
