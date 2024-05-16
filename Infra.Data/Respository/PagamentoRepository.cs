@@ -6,6 +6,7 @@ using Domain.Mappers;
 using Infra.Data.Context;
 using Infra.Data.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Math.EC.Rfc7748;
 using System.Collections.Generic;
 
 namespace Infra.Data.Respository
@@ -268,13 +269,28 @@ namespace Infra.Data.Respository
                             Total = s.Sum(x => x.Credito ?? 0) + s.Sum(x => x.Debito ?? 0) + s.Sum(x => x.Dinheiro ?? 0) + s.Sum(x => x.CreditoParcelado ?? 0) + s.Sum(x => x.Pix ?? 0) + s.Sum(x => x.Receber ?? 0) + s.Sum(x => x.Descontar ?? 0)
                         });
 
-                    //var pagSaida = await _db.PagamentoSaidas
-                    //    .Include(x => x.)
-
-
+                    var pagSaida = await _db.PagamentoSaidas
+                        .Include(x => x.Evento)
+                        .Where(x => x.Evento.Id == id)
+                        .GroupBy(g => g.Evento.Id)
+                        .Select(s => new PagamentosDto
+                        {
+                            Tipo = 2,
+                            Dinheiro = s.Sum(x => x.FormaPagamento.Equals("Dinheiro") ? x.Valor : 0),
+                            Debito = s.Sum(x => x.FormaPagamento.Equals("Débito") ? x.Valor : 0),
+                            Credito = s.Sum(x => x.FormaPagamento.Equals("Crédito") ? x.Valor : 0),
+                            CreditoParcelado = s.Sum(x => x.FormaPagamento.Equals("Crédito Parcelado") ? x.Valor : 0),
+                            Pix = s.Sum(x => x.FormaPagamento.Equals("PIX") ? x.Valor : 0),
+                            Total = s.Sum(x => x.FormaPagamento.Equals("Dinheiro") ? x.Valor : 0)
+                            + s.Sum(x => x.FormaPagamento.Equals("Débito") ? x.Valor : 0)
+                            + s.Sum(x => x.FormaPagamento.Equals("Crédito") ? x.Valor : 0)
+                            + s.Sum(x => x.FormaPagamento.Equals("Crédito Parcelado") ? x.Valor : 0)
+                            + s.Sum(x => x.FormaPagamento.Equals("PIX") ? x.Valor : 0)
+                        }).ToListAsync();
 
                     List<PagamentosDto> lista = new List<PagamentosDto>();
                     lista.Add(primeiro.First());
+                    lista.Add(pagSaida.First());
 
                     return Result<List<PagamentosDto>>.Sucesso(lista);
                 }
@@ -410,6 +426,45 @@ namespace Infra.Data.Respository
             catch (Exception ex)
             {
                 return Result<List<ListPagamento>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "" } });
+            }
+        }
+
+        public async Task<Result<string>> RegistrarListaOfertaEvento(List<OfertaEvento> dto, string EmailUser, int id)
+        {
+            try
+            {
+                List<PagamentoOferta> pagamentos = new List<PagamentoOferta>();
+
+                var evento = await _db.Eventos.FirstOrDefaultAsync(x => x.Id == id);
+
+                var user = await _db.Users.FirstOrDefaultAsync(x => x.UserName.Equals(EmailUser));
+
+                if (user == null) return Result<string>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Usuário inválido.", ocorrencia = "", versao = "" } });
+                else
+                {
+                    foreach (var item in dto)
+                    {
+                        PagamentoOferta saida = new()
+                        {
+                            Forma = item.Forma,
+                            Valor = item.Valor,
+                            Evento = evento,
+                            Usuario = user
+                        };
+
+                        pagamentos.Add(saida);
+                    }
+
+                    await _db.PagamentoOferta.AddRangeAsync(pagamentos);
+
+                    await _db.SaveChangesAsync();
+
+                    return Result<string>.Sucesso("Lista de pagamentos de ofertas registrado com sucesso.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Result<string>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "" } });
             }
         }
     }

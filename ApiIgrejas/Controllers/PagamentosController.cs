@@ -177,6 +177,29 @@ namespace ApiIgrejas.Controllers
         }
 
 
+        [HttpPost("registra-lista-oferta/{id}")]
+        [SwaggerResponse(201, "Registrar pagamentos oferta", typeof(Result<string>))]
+        [ProducesResponseType(typeof(Result<string>), 201)]
+        public async Task<IActionResult> RegistrarListaOferta(int id, List<OfertaEvento> dto)
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var isToken = authorization.DadosToken(token);
+
+            var result = await pagamentoRepository.RegistrarListaOfertaEvento(dto, isToken.Result.Email!, id);
+
+            if (result.Succeeded)
+                return Created("Confirmar", result);
+            else return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
+        }
+
+
         [HttpGet("pagamentos-voluntarios-excel/{id}")]
         [SwaggerResponse(201, "Excel com dados dos pagamentos", typeof(Result<byte[]>))]
         [ProducesResponseType(typeof(Result<byte[]>), 201)]
