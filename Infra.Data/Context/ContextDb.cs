@@ -24,5 +24,6 @@ namespace Infra.Data.Context
         public DbSet<TipoSaida> TiposSaidas { get; set; }
         public DbSet<PagamentoSaida> PagamentoSaidas { get; set; }
         public DbSet<PagamentoOferta> PagamentoOferta { get; set; }
+        public DbSet<Lanchonete> Lanchonetes { get; set; }
     }
 }

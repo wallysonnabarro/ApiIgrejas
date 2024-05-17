@@ -288,9 +288,49 @@ namespace Infra.Data.Respository
                             + s.Sum(x => x.FormaPagamento.Equals("PIX") ? x.Valor : 0)
                         }).ToListAsync();
 
+                    var oferta = await _db.PagamentoOferta
+                        .Include(x => x.Evento)
+                        .Where(x => x.Evento.Id == id)
+                        .GroupBy(g => g.Evento.Id)
+                        .Select(s => new PagamentosDto
+                        {
+                            Tipo = 3,
+                            Dinheiro = s.Sum(x => x.Forma.Equals("Dinheiro") ? x.Valor : 0),
+                            Debito = s.Sum(x => x.Forma.Equals("Débito") ? x.Valor : 0),
+                            Credito = s.Sum(x => x.Forma.Equals("Crédito") ? x.Valor : 0),
+                            CreditoParcelado = s.Sum(x => x.Forma.Equals("Crédito Parcelado") ? x.Valor : 0),
+                            Pix = s.Sum(x => x.Forma.Equals("PIX") ? x.Valor : 0),
+                            Total = s.Sum(x => x.Forma.Equals("Dinheiro") ? x.Valor : 0)
+                            + s.Sum(x => x.Forma.Equals("Débito") ? x.Valor : 0)
+                            + s.Sum(x => x.Forma.Equals("Crédito") ? x.Valor : 0)
+                            + s.Sum(x => x.Forma.Equals("Crédito Parcelado") ? x.Valor : 0)
+                            + s.Sum(x => x.Forma.Equals("PIX") ? x.Valor : 0)
+                        }).ToListAsync();
+
+                    var lanchonete = await _db.Lanchonetes
+                        .Include(x => x.Evento)
+                        .Where(x => x.Evento.Id == id)
+                        .GroupBy(g => g.Evento.Id)
+                        .Select(s => new PagamentosDto
+                        {
+                            Tipo = 4,
+                            Dinheiro = s.Sum(x => x.Forma.Equals("Dinheiro") ? x.Valor : 0),
+                            Debito = s.Sum(x => x.Forma.Equals("Débito") ? x.Valor : 0),
+                            Credito = s.Sum(x => x.Forma.Equals("Crédito") ? x.Valor : 0),
+                            CreditoParcelado = s.Sum(x => x.Forma.Equals("Crédito Parcelado") ? x.Valor : 0),
+                            Pix = s.Sum(x => x.Forma.Equals("PIX") ? x.Valor : 0),
+                            Total = s.Sum(x => x.Forma.Equals("Dinheiro") ? x.Valor : 0)
+                            + s.Sum(x => x.Forma.Equals("Débito") ? x.Valor : 0)
+                            + s.Sum(x => x.Forma.Equals("Crédito") ? x.Valor : 0)
+                            + s.Sum(x => x.Forma.Equals("Crédito Parcelado") ? x.Valor : 0)
+                            + s.Sum(x => x.Forma.Equals("PIX") ? x.Valor : 0)
+                        }).ToListAsync();
+
                     List<PagamentosDto> lista = new List<PagamentosDto>();
                     lista.Add(primeiro.First());
                     lista.Add(pagSaida.First());
+                    lista.Add(oferta.First());
+                    lista.Add(lanchonete.First());
 
                     return Result<List<PagamentosDto>>.Sucesso(lista);
                 }
@@ -459,7 +499,47 @@ namespace Infra.Data.Respository
 
                     await _db.SaveChangesAsync();
 
-                    return Result<string>.Sucesso("Lista de pagamentos de ofertas registrado com sucesso.");
+                    return Result<string>.Sucesso("Registrado com sucesso.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Result<string>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "" } });
+            }
+        }
+
+
+        public async Task<Result<string>> RegistrarListaOfertalanchonete(List<OfertaEvento> dto, string EmailUser, int id)
+        {
+            try
+            {
+                List<Lanchonete> pagamentos = new List<Lanchonete>();
+
+                var evento = await _db.Eventos.FirstOrDefaultAsync(x => x.Id == id);
+
+                var user = await _db.Users.FirstOrDefaultAsync(x => x.UserName.Equals(EmailUser));
+
+                if (user == null) return Result<string>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Usuário inválido.", ocorrencia = "", versao = "" } });
+                else
+                {
+                    foreach (var item in dto)
+                    {
+                        Lanchonete saida = new()
+                        {
+                            Forma = item.Forma,
+                            Valor = item.Valor,
+                            Evento = evento,
+                            Usuario = user
+                        };
+
+                        pagamentos.Add(saida);
+                    }
+
+                    await _db.Lanchonetes.AddRangeAsync(pagamentos);
+
+                    await _db.SaveChangesAsync();
+
+                    return Result<string>.Sucesso("Registrado com sucesso.");
                 }
             }
             catch (Exception ex)
