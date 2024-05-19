@@ -13,6 +13,8 @@ namespace Infra.Data.Interfaces
 
         public Task<Identidade> UpdateAcessLock(int id);
         Task<Result<Paginacao<UsuarioListDto>>> Paginacao(PageWrapper wrapper, string email);
+        Task<Result<Paginacao<UsuarioListaPaginadaDto>>> PaginacaoLista(PageWrapper wrapper, string email);
         Task<Result<bool>> Novo(NovoUsuarioDto dto, string email);
+        Task<Result<UsuarioDetalharDto>> UserDetalhe(int id);
     }
 }

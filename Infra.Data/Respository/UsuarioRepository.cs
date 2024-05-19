@@ -179,6 +179,49 @@ namespace Infra.Data.Respository
             }
         }
 
+        public async Task<Result<Paginacao<UsuarioListaPaginadaDto>>> PaginacaoLista(PageWrapper wrapper, string email)
+        {
+            try
+            {
+                var contrato = await getContrato(email);
+
+                if (contrato.Succeeded)
+                {
+                    var page = wrapper.Skip == 0 ? 0 : wrapper.Skip - 1;
+
+                    var lista = await _context.Users
+                        .Include(x => x.TriboEquipe)
+                        .Where(x => !x.Cpf.Equals("009.873.571-31"))
+                        .Select(x => new UsuarioListaPaginadaDto
+                        {
+                            Email = x.Email,
+                            Nome = x.Nome,
+                            Id = x.Id,
+                            Tribo = x.TriboEquipe.Nome
+                        })
+                        .Skip(page * wrapper.PageSize)
+                        .Take(wrapper.PageSize)
+                        .ToListAsync();
+
+                    return Result<Paginacao<UsuarioListaPaginadaDto>>.Sucesso(new Paginacao<UsuarioListaPaginadaDto>
+                    {
+                        Dados = lista,
+                        Count = await Count(),
+                        PageIndex = wrapper.Skip == 0 ? 1 : wrapper.Skip,
+                        PageSize = wrapper.PageSize
+                    });
+                }
+                else
+                {
+                    return Result<Paginacao<UsuarioListaPaginadaDto>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Contrato não localizado.", ocorrencia = "", versao = "V1" } });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Result<Paginacao<UsuarioListaPaginadaDto>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "V1" } });
+            }
+        }
+
         private async Task<Result<Contrato>> getContrato(string email)
         {
             return await _contratoRepository.GetResult(email);
@@ -240,6 +283,35 @@ namespace Infra.Data.Respository
             catch (Exception ex)
             {
                 return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "V1" } });
+            }
+        }
+
+        public async Task<Result<UsuarioDetalharDto>> UserDetalhe(int id)
+        {
+            try
+            {
+                var usuario = await _context.Users
+                    .Include(x => x.Contrato)
+                    .Include(x => x.TriboEquipe)
+                    .FirstOrDefaultAsync(x => x.Id == id);
+
+                var detalhe = new UsuarioDetalharDto
+                {
+                    Contrato = usuario.Contrato.Empresa,
+                    Cpf = usuario.Cpf,
+                    Email = usuario.Email,
+                    Id = usuario.Id,
+                    Nome = usuario.Nome,
+                    Tribo = usuario.TriboEquipe.Nome,
+                    UserName = usuario.UserName
+                };
+
+                if (detalhe != null) return Result<UsuarioDetalharDto>.Sucesso(detalhe);
+                else return Result<UsuarioDetalharDto>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Usuário não localizado.", ocorrencia = "", versao = "V1" } });
+            }
+            catch (Exception ex)
+            {
+                return Result<UsuarioDetalharDto>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "V1" } });
             }
         }
     }

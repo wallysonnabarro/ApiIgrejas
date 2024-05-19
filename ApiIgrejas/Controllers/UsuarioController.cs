@@ -125,6 +125,54 @@ namespace ApiIgrejas.Controllers
                 return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
+        [HttpPost("lista-paginada-novo")]
+        [Authorize]
+        [SwaggerResponse(200, "Paginação de usuários", typeof(Result<Paginacao<UsuarioDto>>))]
+        [ProducesResponseType(typeof(Result<Paginacao<UsuarioDto>>), 200)]
+        public async Task<IActionResult> PaginarNovo(PageWrapper dto)
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var resultToken = await this._authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var isToken = _authorization.DadosToken(token);
+
+            var result = await _userManager.PaginacaoLista(dto, isToken.Result.Email!);
+
+            if (result.Succeeded)
+                return Ok(result);
+            else
+                return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
+        }
+
+        [HttpGet("detalhar/{id}")]
+        [Authorize]
+        [SwaggerResponse(200, "deatlhar", typeof(Result<UsuarioDetalharDto>))]
+        [ProducesResponseType(typeof(Result<UsuarioDetalharDto>), 200)]
+        public async Task<IActionResult> Detalhar(int id)
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var resultToken = await this._authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var isToken = _authorization.DadosToken(token);
+
+            var result = await _userManager.UserDetalhe(id);
+
+            if (result.Succeeded)
+                return Ok(result);
+            else
+                return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
+        }
+
 
         [HttpPost("novo")]
         [Authorize]
