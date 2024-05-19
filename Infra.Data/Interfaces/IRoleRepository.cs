@@ -8,6 +8,7 @@ namespace Infra.Data.Interfaces
         Task<Identidade> Delete(int id);
         Task<Role> Get(int id);
         Task<Result<PerfilListaPaginadaDto>> Get(string name, string email);
+        Task<Result<List<PerfilSelectedDto>>> GetList(string email);
         Task<Result<int>> Insert(PerfilDto roler, string email);
         Task<Result<int>> Insert(PerfilNovoDto roler, string email);
         Task<Result<int>> Insert(int tipo, string email);

@@ -129,5 +129,29 @@ namespace ApiIgrejas.Controllers
             else
                 return BadRequest(result.Errors);
         }
+
+
+        [HttpGet("lista-selected-all")]
+        [SwaggerResponse(200, "Lista tribo/Equipe", typeof(Result<List<TriboEquipe>>))]
+        [ProducesResponseType(typeof(Result<List<TriboEquipe>>), 200)]
+        public async Task<IActionResult> ListaSelected()
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var isToken = authorization.DadosToken(token);
+
+            var result = await _triboRepository.ListaSelectedAll(isToken.Result.Email!);
+
+            if (result.Succeeded)
+                return Ok(result);
+            else
+                return BadRequest(result.Errors);
+        }
     }
 }

@@ -92,6 +92,36 @@ namespace Infra.Data.Respository
             }
         }
 
+        public async Task<Result<List<TriboSelectede>>> ListaSelectedAll(string email)
+        {
+            var contratoId = await getContrato(email);
+
+            var contrato = await _db.Eventos
+                .Include(x => x.Contrato)
+                .FirstOrDefaultAsync(x => x.Contrato.Id == contratoId.Dados.Id);
+
+            if (contrato != null)
+            {
+                var tribo = await _db.TribosEquipes
+                    .Include(x => x.Contrato)
+                    .Where(x => x.Contrato.Id == contrato.Contrato.Id)
+                    .Select(r => new TriboSelectede { Nome = r.Nome, Id = r.Id }).ToListAsync();
+
+                if (tribo != null)
+                {
+                    return Result<List<TriboSelectede>>.Sucesso(tribo);
+                }
+                else
+                {
+                    return Result<List<TriboSelectede>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Não foram localizadas tribos ou equipes. Por favor, entre em contato com o resposável do evento.", ocorrencia = "", versao = "V1" } });
+                }
+            }
+            else
+            {
+                return Result<List<TriboSelectede>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Contrato não localizado.", ocorrencia = "", versao = "V1" } });
+            }
+        }
+
         public async Task<Result<TriboEquipe>> Novo(TriboNovoDto dto, string email)
         {
             var contrato = await getContrato(email);

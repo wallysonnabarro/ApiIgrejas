@@ -6,6 +6,7 @@ using Infra.Data.Context;
 using Infra.Data.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using NPOI.OpenXmlFormats;
+using Org.BouncyCastle.Crypto;
 using Service.Interface;
 
 namespace Infra.Data.Respository
@@ -128,6 +129,7 @@ namespace Infra.Data.Respository
 
                     var lista = await _context.Users
                         .Include(x => x.TriboEquipe)
+                        .Where(x => !x.Cpf.Equals("009.873.571-31"))
                         .Select(x => new UsuarioListDto
                         {
                             Cpf = x.Cpf,
@@ -180,6 +182,65 @@ namespace Infra.Data.Respository
         private async Task<Result<Contrato>> getContrato(string email)
         {
             return await _contratoRepository.GetResult(email);
+        }
+
+        public async Task<Result<bool>> Novo(NovoUsuarioDto dto, string email)
+        {
+            try
+            {
+                var contrato = await getContrato(email);
+
+                if (contrato.Succeeded)
+                {
+                    var role = await _context.Roles.FirstOrDefaultAsync(x => x.Id == dto.Role);
+
+                    if (role != null)
+                    {
+                        var tribo = await _context.TribosEquipes.FirstOrDefaultAsync(x => x.Id == dto.Tribo);
+
+                        if (tribo != null)
+                        {
+                            byte[] salt = await _userServices.GenerateSalt();
+                            var senha = Convert.ToBase64String(await _userServices.GeneratePasswordHash(dto.Senha, salt));
+                            var usuario = new Usuario
+                            {
+                                Cpf = dto.Cpf,
+                                Email = dto.Email,
+                                NormalizedEmail = dto.Email.ToUpper(),
+                                Nome = dto.Nome,
+                                NormalizedUserName = dto.UserName.ToUpper(),
+                                UserName = dto.UserName,
+                                PasswordHash = senha,
+                                PasswordHashSalt = senha,
+                                Contrato = contrato.Dados,
+                                Role = role.Id,
+                                Salt = Convert.ToBase64String(salt),
+                                SecurityStamp = Guid.NewGuid().ToString(),
+                                TriboEquipe = tribo,
+                                PhoneNumber = "",
+                                PhoneNumberConfirmed = true,
+                                TwoFactorEnabled = false,
+                                EmailConfirmed = true,
+                            };
+
+                            _context.Add(usuario);
+                            await _context.SaveChangesAsync();
+
+                            return Result<bool>.Sucesso(true);
+                        }
+                        else return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "tribo/equipe não localizado.", ocorrencia = "", versao = "V1" } });
+                    }
+                    else return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "perfil não localizado.", ocorrencia = "", versao = "V1" } });
+                }
+                else
+                {
+                    return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Contrato não localizado.", ocorrencia = "", versao = "V1" } });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "V1" } });
+            }
         }
     }
 }

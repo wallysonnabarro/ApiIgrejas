@@ -158,5 +158,28 @@ namespace ApiIgrejas.Controllers
             else
                 return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
+
+        [HttpGet("perfil-listaSelected")]
+        [SwaggerResponse(200, "Buscar lista de perfil", typeof(Result<PerfilSelectedDto>))]
+        [ProducesResponseType(typeof(Result<PerfilSelectedDto>), 200)]
+        public async Task<IActionResult> Perfil()
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var isToken = await authorization.DadosToken(token);
+
+            var result = await _roleRepository.GetList(isToken.Email!);
+
+            if (result.Succeeded)
+                return Ok(result);
+            else
+                return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
+        }
     }
 }

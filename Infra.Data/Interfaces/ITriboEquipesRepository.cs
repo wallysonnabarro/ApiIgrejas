@@ -9,6 +9,7 @@ namespace Infra.Data.Interfaces
         Task<Result<TriboEquipe>> Novo(TriboNovoDto dto, string email);
         Task<Result<TriboEquipe>> Editar(TriboEquipe dto);
         Task<Result<List<TriboSelectede>>> ListaSelected(string token);
+        Task<Result<List<TriboSelectede>>> ListaSelectedAll(string email);
         Task<Result<TriboEquipe>> Detalhar(int id, string email);
     }
 }

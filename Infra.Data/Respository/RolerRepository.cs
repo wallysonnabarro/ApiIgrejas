@@ -61,6 +61,28 @@ namespace Infra.Data.Respository
             }
         }
 
+        public async Task<Result<List<PerfilSelectedDto>>> GetList(string email)
+        {
+            try
+            {
+                var contrato = await contratoRepository.GetResult(email);
+
+                var roles = await _context.Roles
+                        .Include(x => x.Contrato)
+                        .Where(x => x.Contrato.Id == contrato.Dados.Id && !x.Nome.Equals("DESENVOLVEDOR"))
+                        .Select(x => new PerfilSelectedDto { Id = x.Id, Nome = x.Nome })
+                        .ToListAsync();                
+
+                if (roles != null)
+                    return Result<List<PerfilSelectedDto>>.Sucesso(roles);
+                else return Result<List<PerfilSelectedDto>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Perfil não encotrado", ocorrencia = "", versao = "" } });
+            }
+            catch (Exception ex)
+            {
+                return Result<List<PerfilSelectedDto>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "" } });
+            }
+        }
+
         public async Task<Result<int>> Insert(PerfilDto roler, string email)
         {
             try

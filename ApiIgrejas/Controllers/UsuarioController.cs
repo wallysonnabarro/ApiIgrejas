@@ -101,7 +101,7 @@ namespace ApiIgrejas.Controllers
             }
         }
 
-        [HttpPost("paginacao")]
+        [HttpPost("lista-paginada")]
         [Authorize]
         [SwaggerResponse(200, "Paginação de usuários", typeof(Result<Paginacao<UsuarioDto>>))]
         [ProducesResponseType(typeof(Result<Paginacao<UsuarioDto>>), 200)]
@@ -118,6 +118,31 @@ namespace ApiIgrejas.Controllers
             var isToken = _authorization.DadosToken(token);
 
             var result = await _userManager.Paginacao(dto, isToken.Result.Email!);
+
+            if (result.Succeeded)
+                return Ok(result);
+            else
+                return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
+        }
+
+
+        [HttpPost("novo")]
+        [Authorize]
+        [SwaggerResponse(200, "novo usuário", typeof(Result<Paginacao<UsuarioDto>>))]
+        [ProducesResponseType(typeof(Result<Paginacao<UsuarioDto>>), 200)]
+        public async Task<IActionResult> Novo(NovoUsuarioDto dto)
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var resultToken = await this._authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var isToken = _authorization.DadosToken(token);
+
+            var result = await _userManager.Novo(dto, isToken.Result.Email!);
 
             if (result.Succeeded)
                 return Ok(result);
