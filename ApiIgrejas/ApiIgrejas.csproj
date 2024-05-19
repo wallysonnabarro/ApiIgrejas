@@ -71,6 +71,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="wwwroot\reports\dsPagamento.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>dsPagamento.xsd</DependentUpon>
+    </Content>
     <Content Update="wwwroot\reports\dsPagamento.xsd">
       <SubType>Designer</SubType>
       <LastGenOutput>dsPagamento.Designer.cs</LastGenOutput>

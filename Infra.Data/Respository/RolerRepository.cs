@@ -99,6 +99,133 @@ namespace Infra.Data.Respository
             }
         }
 
+        public async Task<Result<int>> Insert(PerfilNovoDto roler, string email)
+        {
+            try
+            {
+                var contrato = await contratoRepository.GetResult(roler.contratoSelecionadoId);
+
+                if (contrato.Succeeded)
+                {
+                    Role perfil = new Role() { Contrato = contrato.Dados, Nome = roler.perfilName, Status = roler.statusSelecionadoId };
+
+                    List<Transacao> transacao = new List<Transacao>();
+                    if (roler.tribosEquipes == true)
+                    {
+                        transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Tribos/Equipes")));
+                    }
+                    if (roler.membros == true)
+                    {
+                        transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Membros")));
+                    }
+                    if (roler.cadastroEvento == true)
+                    {
+                        transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Cadastro Sião")));
+                    }
+                    if (roler.eventosSele == true)
+                    {
+                        transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Sião")));
+                    }
+                    if (roler.area == true)
+                    {
+                        transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Área")));
+                    }
+                    if (roler.inscricoes == true)
+                    {
+                        transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Inscricões")));
+                    }
+                    if (roler.inscricoesVoluntarios == true)
+                    {
+                        transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Inscrições Voluntários")));
+                    }
+                    if (roler.administracoe == true)
+                    {
+                        transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Administração")));
+                    }
+                    if (roler.novoUsuario == true)
+                    {
+                        transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Novo Usuário")));
+                    }
+                    if (roler.redefinirSenha == true)
+                    {
+                        transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Redefinir Senha")));
+                    }
+                    if (roler.redefinirAcesso == true)
+                    {
+                        transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Redefinir Acesso")));
+                    }
+                    if (roler.fechamentoPagamentos == true)
+                    {
+                        transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Fechamento/Pagamentos")));
+                    }
+                    if (roler.fechamentoEvento == true)
+                    {
+                        transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Fechamento - Sião")));
+                    }
+                    if (roler.SaidaPagamentos == true)
+                    {
+                        transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Saída - Pagamentos")));
+                    }
+                    if (roler.ofertasEvento == true)
+                    {
+                        transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Descontos - Pagamentos")));
+                    }
+                    if (roler.lanchonete == true)
+                    {
+                        transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Lançamentos Lanchonete")));
+                    }
+                    if (roler.financeiro == true)
+                    {
+                        transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Financeiro")));
+                    }
+                    if (roler.registrarFinanceiro == true)
+                    {
+                        transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Registrar Financeiro")));
+                    }
+                    if (roler.despesasObrigações == true)
+                    {
+                        transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Despesas e Obrigações")));
+                    }
+                    if (roler.visualizarFinanceiro == true)
+                    {
+                        transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Visualizar Financeiro")));
+                    }
+                    if (roler.tiposSaida == true)
+                    {
+                        transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Tipos de Saída")));
+                    }
+                    if (roler.logout == true)
+                    {
+                        transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Logout")));
+                    }
+                    if (roler.login == true)
+                    {
+                        transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Login")));
+                    }
+
+                    perfil.Transacoes = transacao;
+
+                    _context.Roles.Add(perfil);
+                    await _context.SaveChangesAsync();
+
+                    return Result<int>.Sucesso(perfil.Id);
+
+                }
+                else
+                {
+                    return Result<int>.Failed(new List<Erros>{ new Erros {
+                        mensagem = "Contrato não localizado."
+                    }});
+                }
+            }
+            catch (Exception e)
+            {
+                return Result<int>.Failed(new List<Erros>{ new Erros {
+                    mensagem = e.Message,
+                    }});
+            }
+        }
+
         public async Task<Result<int>> Insert(int tipo, string email)
         {
             var contrato = await contratoRepository.GetResult(email);
@@ -151,11 +278,17 @@ namespace Infra.Data.Respository
                         {
                             Nome = x.Nome,
                             Id = x.Id,
+                            Status = x.Status,
                             Transacoes = x.Transacoes!
                         })
                         .Skip(page * wrapper.PageSize)
                         .Take(wrapper.PageSize)
                         .ToListAsync();
+
+                    var dese = lista.FirstOrDefault(x => x.Nome.Equals("DESENVOLVEDOR"));
+
+                    if (dese != null)
+                        lista.Remove(dese);
 
                     int count = await Count();
 
@@ -193,6 +326,131 @@ namespace Infra.Data.Respository
                 role.Nome = roler.Nome;
                 role.Status = roler.Status;
                 role.Transacoes = perfis;
+
+                _context.Roles.Update(role);
+                _context.SaveChanges();
+
+                return Result<bool>.Sucesso(true);
+            }
+            catch (Exception e)
+            {
+                return Result<bool>.Failed(new List<Erros>() { new Erros { mensagem = e.Message } });
+            }
+        }
+
+        public async Task<Result<bool>> Update(PerfilAtualizarDto roler, string email)
+        {
+            try
+            {
+                var role = await _context.Roles
+                    .Include(x => x.Transacoes)
+                    .FirstOrDefaultAsync(r => r.Id == roler.Id);
+
+                var contrato = await contratoRepository.GetResult(roler.contratoSelecionadoId);
+
+                if (role == null) return Result<bool>.Failed(new List<Erros>() { new Erros { mensagem = "Perfil não localizado." } });
+
+                List<Transacao> transacao = new List<Transacao>();
+                if (roler.tribosEquipes == true)
+                {
+                    transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Tribos/Equipes")));
+                }
+                if (roler.membros == true)
+                {
+                    transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Membros")));
+                }
+                if (roler.cadastroEvento == true)
+                {
+                    transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Cadastro Sião")));
+                }
+                if (roler.eventosSele == true)
+                {
+                    transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Sião")));
+                }
+                if (roler.area == true)
+                {
+                    transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Área")));
+                }
+                if (roler.inscricoes == true)
+                {
+                    transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Inscricões")));
+                }
+                if (roler.inscricoesVoluntarios == true)
+                {
+                    transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Inscrições Voluntários")));
+                }
+                if (roler.administracoe == true)
+                {
+                    transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Administração")));
+                }
+                if (roler.novoUsuario == true)
+                {
+                    transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Novo Usuário")));
+                }
+                if (roler.redefinirSenha == true)
+                {
+                    transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Redefinir Senha")));
+                }
+                if (roler.redefinirAcesso == true)
+                {
+                    transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Redefinir Acesso")));
+                }
+                if (roler.fechamentoPagamentos == true)
+                {
+                    transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Fechamento/Pagamentos")));
+                }
+                if (roler.fechamentoEvento == true)
+                {
+                    transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Fechamento - Sião")));
+                }
+                if (roler.SaidaPagamentos == true)
+                {
+                    transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Saída - Pagamentos")));
+                }
+                if (roler.ofertasEvento == true)
+                {
+                    transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Descontos - Pagamentos")));
+                }
+                if (roler.lanchonete == true)
+                {
+                    transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Lançamentos Lanchonete")));
+                }
+                if (roler.financeiro == true)
+                {
+                    transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Financeiro")));
+                }
+                if (roler.registrarFinanceiro == true)
+                {
+                    transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Registrar Financeiro")));
+                }
+                if (roler.despesasObrigações == true)
+                {
+                    transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Despesas e Obrigações")));
+                }
+                if (roler.visualizarFinanceiro == true)
+                {
+                    transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Visualizar Financeiro")));
+                }
+                if (roler.tiposSaida == true)
+                {
+                    transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Tipos de Saída")));
+                }
+                if (roler.logout == true)
+                {
+                    transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Logout")));
+                }
+                if (roler.login == true)
+                {
+                    transacao.Add(await _context.Transacaos.FirstOrDefaultAsync(x => x.Nome.Equals("Login")));
+                }
+
+                var remover = role.Transacoes.Except(transacao);
+
+
+                role.Nome = roler.perfilName;
+                role.Contrato = contrato.Dados;
+                role.Status = roler.statusSelecionadoId;
+                role.Transacoes = transacao;
 
                 _context.Roles.Update(role);
                 _context.SaveChanges();

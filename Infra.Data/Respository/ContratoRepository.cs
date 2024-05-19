@@ -181,5 +181,37 @@ namespace Infra.Data.Respository
                 return Result<Contrato>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "V1" } });
             }
         }
+
+        public async Task<Result<List<ContratoSelectedDto>>> GetList()
+        {
+            try
+            {
+                var lista = await _contextDb.Contratos
+                    .Where(x => x.Status == 1 && x.Vencimento >= DateTime.Now)
+                    .Select(s => new ContratoSelectedDto { Id = s.Id, Nome = s.Empresa })
+                    .ToListAsync();
+
+                return Result<List<ContratoSelectedDto>>.Sucesso(lista);
+            }
+            catch (Exception ex)
+            {
+                return Result<List<ContratoSelectedDto>>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "V1" } });
+            }
+        }
+
+        public async Task<Result<Contrato>> GetResult(int id)
+        {
+            try
+            {
+                var contrato = await _contextDb.Contratos
+                    .FirstOrDefaultAsync(x => x.Id == id);
+
+                return Result<Contrato>.Sucesso(contrato);
+            }
+            catch (Exception ex)
+            {
+                return Result<Contrato>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "V1" } });
+            }
+        }
     }
 }

@@ -45,6 +45,53 @@ namespace ApiIgrejas.Controllers
                 return BadRequest(new { mensagem = identidade.Errors.Min(x => x.mensagem) });
         }
 
+        [HttpPost("perfil-novo")]
+        [SwaggerResponse(201, "Novo perfil", typeof(Result<int>))]
+        [ProducesResponseType(typeof(Result<int>), 201)]
+        public async Task<IActionResult> NovoPerfil(PerfilNovoDto dto)
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var isToken = await authorization.DadosToken(token);
+
+            var identidade = await _roleRepository.Insert(dto, isToken.Email!);
+
+            if (identidade.Succeeded)
+                return CreatedAtAction(nameof(NovaPermissao), new { id = identidade.Dados });
+            else
+                return BadRequest(new { mensagem = identidade.Errors.Min(x => x.mensagem) });
+        }
+
+
+        [HttpPost("perfil-atualizar")]
+        [SwaggerResponse(201, "Novo perfil", typeof(Result<int>))]
+        [ProducesResponseType(typeof(Result<int>), 201)]
+        public async Task<IActionResult> AtualizarPerfil(PerfilAtualizarDto dto)
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var isToken = await authorization.DadosToken(token);
+
+            var identidade = await _roleRepository.Update(dto, isToken.Email!);
+
+            if (identidade.Succeeded)
+                return CreatedAtAction(nameof(NovaPermissao), new { id = identidade.Dados });
+            else
+                return BadRequest(new { mensagem = identidade.Errors.Min(x => x.mensagem) });
+        }
+
         [HttpPost("lista-paginada")]
         [SwaggerResponse(200, "Lista perfil", typeof(Result<Paginacao<PerfilListaPaginadaDto>>))]
         [ProducesResponseType(typeof(Result<Paginacao<PerfilListaPaginadaDto>>), 200)]

@@ -60,6 +60,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>dsCheckin.xsd</DependentUpon>
     </Compile>
+    <Compile Update="Reports\dsPagamento.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>dsPagamento.xsd</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>

@@ -84,5 +84,27 @@ namespace ApiIgrejas.Controllers
             else
                 return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
+
+
+        [HttpGet("contratos-ativos")]
+        [SwaggerResponse(200, "ALista de contratos ativos contrato", typeof(Result<Contrato>))]
+        [ProducesResponseType(typeof(Result<Contrato>), 200)]
+        public async Task<IActionResult> ContratosAtivos()
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var result = await _contratoRepository.GetList();
+
+            if (result.Succeeded)
+                return Ok(result);
+            else
+                return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
+        }
     }
 }

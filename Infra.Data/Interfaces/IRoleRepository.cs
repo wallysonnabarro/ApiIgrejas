@@ -9,9 +9,11 @@ namespace Infra.Data.Interfaces
         Task<Role> Get(int id);
         Task<Result<PerfilListaPaginadaDto>> Get(string name, string email);
         Task<Result<int>> Insert(PerfilDto roler, string email);
+        Task<Result<int>> Insert(PerfilNovoDto roler, string email);
         Task<Result<int>> Insert(int tipo, string email);
         Task<List<Role>> List();
         Task<Result<bool>> Update(UpdatePerfilDto roler);
+        Task<Result<bool>> Update(PerfilAtualizarDto roler, string email);
         Task<bool> IsValid(string v);
         Task<Result<Paginacao<PerfilListaPaginadaDto>>> Paginacao(PageWrapper wrapper, string email);
     }
