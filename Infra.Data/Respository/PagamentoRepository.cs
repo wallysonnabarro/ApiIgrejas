@@ -327,10 +327,15 @@ namespace Infra.Data.Respository
                         }).ToListAsync();
 
                     List<PagamentosDto> lista = new List<PagamentosDto>();
+
                     lista.Add(primeiro.First());
-                    lista.Add(pagSaida.First());
-                    lista.Add(oferta.First());
-                    lista.Add(lanchonete.First());
+
+                    if (pagSaida.Count > 0)
+                        lista.Add(pagSaida.First());
+                    if (oferta.Count > 0)
+                        lista.Add(oferta.First());
+                    if (lanchonete.Count > 0)
+                        lista.Add(lanchonete.First());
 
                     return Result<List<PagamentosDto>>.Sucesso(lista);
                 }
