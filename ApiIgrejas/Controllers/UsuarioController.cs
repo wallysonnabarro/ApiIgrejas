@@ -61,7 +61,7 @@ namespace ApiIgrejas.Controllers
 
                     Response.Cookies.Append("XSRF-TOKEN", tokens.RequestToken!, new CookieOptions
                     {
-                        HttpOnly = false 
+                        HttpOnly = false
                     });
 
                     var token = await _authenticarManager.AuthenticateUser(loginDTO.Email, loginDTO.Senha);
@@ -198,57 +198,22 @@ namespace ApiIgrejas.Controllers
                 return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
-        ////<summary>
-        ////Este endpoint, deverá ser removido na publicação.
-        ////</summary>
-        //[HttpGet("cadastro-develope")]
-        //public async Task<GetSaltsEPassword> CadastroDeveloper()
-        //{
-        //    //if (await _db.Users.AnyAsync(x => x.Cpf.Equals("009.873.571-31")))
-        //    //{
-        //    //    return Identidade.Failed(new IdentidadeError { Code = "", Description = "" });
-        //    //}
 
-        //    //var contrato = _db.Contratos.FirstOrDefault(x => x.Id == 1);
+        [HttpGet("validar-token")]
+        [Authorize]
+        [SwaggerResponse(200, "validar token", typeof(bool))]
+        [ProducesResponseType(typeof(bool), 200)]
+        public async Task<IActionResult> ValidarToken()
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
 
-        //    //if (contrato == null) return Identidade.Failed(new IdentidadeError { Code = "", Description = "" });
+            if (token == null) return Unauthorized(new { mensagem = "Acesso não autorizado" });
 
-        //    //if (!await _roleRepository.IsValid("DESENVOLVEDOR")) await _roleRepository.Insert(0);
+            var resultToken = await this._authorization.IsAuthTokenValid(token);
 
-        //    //var role = await _roleRepository.Get("DESENVOLVEDOR");
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+            else return Ok(true);
+        }
 
-        //    //var tribo = _db.TribosEquipes.FirstOrDefaultAsync(x => x.Nome.Equals("MAANAIM"));
-
-        //    //if (tribo == null) return Identidade.Failed(new IdentidadeError { Code = "", Description = "" });
-
-        //    //var triboEquipe = new TriboEquipe { Nome = "MAANAIM", Status = 1 };
-
-        //    //_db.Add(triboEquipe);
-        //    //_db.SaveChanges();
-
-        //    //var user = new UsuarioDto()
-        //    //{
-        //    //    Cpf = "009.873.571-31",
-        //    //    Email = "wallyson.a3@gmail.com",
-        //    //    NormalizedEmail = "WALLYSON.A3@GMAIL.COM",
-        //    //    Nome = "Wallyson Lopes",
-        //    //    NormalizedUserName = "WALLYSON LOPES",
-        //    //    Contrato = contrato,
-        //    //    Password = "389419wE1e@",
-        //    //    Role = 1,
-        //    //    TriboEquipe = triboEquipe,
-        //    //    UserName = "wallyson.a3@gmail.com",
-        //    //    TwoFactorEnabled = false,
-        //    //};
-
-        //    byte[] salt = await _userServices.GenerateSalt();
-        //    var senha = Convert.ToBase64String(await _userServices.GeneratePasswordHash("389419wE1e@", salt));
-
-        //    return new GetSaltsEPassword
-        //    {
-        //        Salt = Convert.ToBase64String(salt),
-        //        Senha = senha
-        //    };
-        //}
     }
 }
