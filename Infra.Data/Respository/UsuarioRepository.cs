@@ -314,5 +314,35 @@ namespace Infra.Data.Respository
                 return Result<UsuarioDetalharDto>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "V1" } });
             }
         }
+
+        public async Task<Result<bool>> RedefinirSenha(LoginDTO dto)
+        {
+            try
+            {
+                var existeEmail = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
+
+                if (existeEmail != null)
+                {
+                    byte[] salt = await _userServices.GenerateSalt();
+                    var senha = Convert.ToBase64String(await _userServices.GeneratePasswordHash(dto.Senha, salt));
+
+                    existeEmail.PasswordHash = senha;
+                    existeEmail.PasswordHashSalt = senha;
+                    existeEmail.Salt = Convert.ToBase64String(salt);
+
+                    await _context.SaveChangesAsync();
+
+                    return Result<bool>.Sucesso(true);
+                }
+                else
+                {
+                    return Result<bool>.Failed(new List<Erros> { new Erros { mensagem = "E-mail não localizado." } });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Result<bool>.Failed(new List<Erros> { new Erros { mensagem = ex.Message } });
+            }
+        }
     }
 }

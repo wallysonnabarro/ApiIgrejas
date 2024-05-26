@@ -215,5 +215,19 @@ namespace ApiIgrejas.Controllers
             else return Ok(true);
         }
 
+
+        [HttpPost("redefinir-senha")]
+        [SwaggerResponse(200, "redefinir senha", typeof(Result<bool>))]
+        [ProducesResponseType(typeof(Result<bool>), 200)]
+        public async Task<IActionResult> RedefinirSenha(LoginDTO loginDTO)
+        {
+            var result = await _userManager.RedefinirSenha(loginDTO);
+
+            if (result.Succeeded)
+                return Ok(result);
+            else
+                return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
+        }
+
     }
 }
