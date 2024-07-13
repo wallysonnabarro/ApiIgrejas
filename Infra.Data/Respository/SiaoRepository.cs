@@ -6,7 +6,6 @@ using Infra.Data.Context;
 using Infra.Data.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Service.Interface;
-using Service.Utilitarios;
 
 namespace Infra.Data.Respository
 {
