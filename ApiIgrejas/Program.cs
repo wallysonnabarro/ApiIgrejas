@@ -53,6 +53,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigin",
         builder =>
         {
+            //builder.WithOrigins("https://bracofortedosenhorsiao.azurewebsites.net")
             builder.WithOrigins("http://localhost:4200")
                    .AllowAnyHeader()
                    .AllowAnyMethod()

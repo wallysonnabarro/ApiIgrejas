@@ -94,17 +94,13 @@ namespace Infra.Data.Respository
 
         public async Task<Result<List<TriboSelectede>>> ListaSelectedAll(string email)
         {
-            var contratoId = await getContrato(email);
-
-            var contrato = await _db.Eventos
-                .Include(x => x.Contrato)
-                .FirstOrDefaultAsync(x => x.Contrato.Id == contratoId.Dados.Id);
+            var contrato = await getContrato(email);
 
             if (contrato != null)
             {
                 var tribo = await _db.TribosEquipes
                     .Include(x => x.Contrato)
-                    .Where(x => x.Contrato.Id == contrato.Contrato.Id)
+                    .Where(x => x.Contrato.Id == contrato.Dados.Id)
                     .Select(r => new TriboSelectede { Nome = r.Nome, Id = r.Id }).ToListAsync();
 
                 if (tribo != null)
