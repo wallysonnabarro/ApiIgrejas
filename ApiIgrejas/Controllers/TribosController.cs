@@ -21,7 +21,6 @@ namespace ApiIgrejas.Controllers
             this.authorization = authorization;
         }
 
-        [Authorize]
         [HttpPost("getAll")]
         [SwaggerResponse(200, "Lista Tribos e equipes", typeof(Result<Paginacao<TriboEquipe>>))]
         [ProducesResponseType(typeof(Result<Paginacao<TriboEquipe>>), 200)]
@@ -45,7 +44,6 @@ namespace ApiIgrejas.Controllers
                 return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
-        [Authorize]
         [HttpPost("novo")]
         [SwaggerResponse(200, "Nova tribo / equipe", typeof(Result<TriboEquipe>))]
         [ProducesResponseType(typeof(Result<TriboEquipe>), 200)]
@@ -69,7 +67,6 @@ namespace ApiIgrejas.Controllers
                 return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
-        [Authorize]
         [HttpPost("detalhar/{id}")]
         [SwaggerResponse(200, "Buscar tribo/Equipe", typeof(Result<TriboEquipe>))]
         [ProducesResponseType(typeof(Result<TriboEquipe>), 200)]
@@ -93,7 +90,6 @@ namespace ApiIgrejas.Controllers
                 return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
-        [Authorize]
         [HttpPost("editar")]
         [SwaggerResponse(200, "Atualizar tribo/Equipe", typeof(Result<TriboEquipe>))]
         [ProducesResponseType(typeof(Result<TriboEquipe>), 200)]

@@ -9,7 +9,6 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace ApiIgrejas.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class RelatoriosController : ControllerBase

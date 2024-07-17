@@ -102,7 +102,6 @@ namespace ApiIgrejas.Controllers
         }
 
         [HttpPost("lista-paginada")]
-        [Authorize]
         [SwaggerResponse(200, "Paginação de usuários", typeof(Result<Paginacao<UsuarioDto>>))]
         [ProducesResponseType(typeof(Result<Paginacao<UsuarioDto>>), 200)]
         public async Task<IActionResult> Paginar(PageWrapper dto)
@@ -126,7 +125,6 @@ namespace ApiIgrejas.Controllers
         }
 
         [HttpPost("lista-paginada-novo")]
-        [Authorize]
         [SwaggerResponse(200, "Paginação de usuários", typeof(Result<Paginacao<UsuarioDto>>))]
         [ProducesResponseType(typeof(Result<Paginacao<UsuarioDto>>), 200)]
         public async Task<IActionResult> PaginarNovo(PageWrapper dto)
@@ -150,7 +148,6 @@ namespace ApiIgrejas.Controllers
         }
 
         [HttpGet("detalhar/{id}")]
-        [Authorize]
         [SwaggerResponse(200, "deatlhar", typeof(Result<UsuarioDetalharDto>))]
         [ProducesResponseType(typeof(Result<UsuarioDetalharDto>), 200)]
         public async Task<IActionResult> Detalhar(int id)
@@ -175,7 +172,6 @@ namespace ApiIgrejas.Controllers
 
 
         [HttpPost("novo")]
-        [Authorize]
         [SwaggerResponse(200, "novo usuário", typeof(Result<Paginacao<UsuarioDto>>))]
         [ProducesResponseType(typeof(Result<Paginacao<UsuarioDto>>), 200)]
         public async Task<IActionResult> Novo(NovoUsuarioDto dto)
@@ -200,7 +196,6 @@ namespace ApiIgrejas.Controllers
 
 
         [HttpGet("validar-token")]
-        [Authorize]
         [SwaggerResponse(200, "validar token", typeof(bool))]
         [ProducesResponseType(typeof(bool), 200)]
         public async Task<IActionResult> ValidarToken()

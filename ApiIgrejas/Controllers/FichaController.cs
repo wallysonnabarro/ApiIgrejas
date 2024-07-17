@@ -37,7 +37,6 @@ namespace ApiIgrejas.Controllers
             return await _fichaRepository.NovoLider(dto);
         }
 
-        [Authorize]
         [HttpPost("lista-inscricoes")]
         [SwaggerResponse(200, "Buscar ficha", typeof(Result<FichaPagamento>))]
         [ProducesResponseType(typeof(Result<FichaPagamento>), 200)]
@@ -58,7 +57,6 @@ namespace ApiIgrejas.Controllers
             else return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
-        [Authorize]
         [HttpPost("lista-inscricoes-nao-confirmados")]
         [SwaggerResponse(200, "Buscar fichas não confirmados", typeof(Result<FichaPagamento>))]
         [ProducesResponseType(typeof(Result<FichaPagamento>), 200)]

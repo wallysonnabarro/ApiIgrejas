@@ -21,7 +21,6 @@ namespace ApiIgrejas.Controllers
             this.authorization = authorization;
         }
 
-        [Authorize]
         [HttpPost("novo")]
         [SwaggerResponse(201, "Nova área", typeof(Result<bool>))]
         [ProducesResponseType(typeof(Result<bool>), 201)]
@@ -45,7 +44,6 @@ namespace ApiIgrejas.Controllers
                 return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
-        [Authorize]
         [HttpPost("listar")]
         [SwaggerResponse(200, "Paginação das áreas.", typeof(Result<Paginacao<Area>>))]
         [ProducesResponseType(typeof(Result<Paginacao<Area>>), 200)]
@@ -69,7 +67,6 @@ namespace ApiIgrejas.Controllers
                 return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
-        [Authorize]
         [HttpPost("editar")]
         [SwaggerResponse(200, "Editar área", typeof(Result<bool>))]
         [ProducesResponseType(typeof(Result<bool>), 200)]
@@ -93,7 +90,6 @@ namespace ApiIgrejas.Controllers
                 return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
-        [Authorize]
         [HttpPost("detalhar/{id}")]
         [SwaggerResponse(200, "Buscar área", typeof(Result<Area>))]
         [ProducesResponseType(typeof(Result<Area>), 200)]

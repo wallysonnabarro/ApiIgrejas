@@ -22,7 +22,6 @@ namespace ApiIgrejas.Controllers
             this.authorization = authorization;
         }
 
-        [Authorize]
         [HttpPost("novo")]
         [SwaggerResponse(201, "Novo evento", typeof(Result<string>))]
         [ProducesResponseType(typeof(Result<string>), 201)]
@@ -46,7 +45,6 @@ namespace ApiIgrejas.Controllers
                 return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
-        [Authorize]
         [HttpPost("listar")]
         [SwaggerResponse(200, "Paginação dos eventos", typeof(Result<Paginacao<Evento>>))]
         [ProducesResponseType(typeof(Result<Paginacao<Evento>>), 200)]
@@ -70,7 +68,6 @@ namespace ApiIgrejas.Controllers
                 return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
-        [Authorize]
         [HttpPost("editar")]
         [SwaggerResponse(200, "Editar Evento", typeof(Result<bool>))]
         [ProducesResponseType(typeof(Result<bool>), 200)]
@@ -92,7 +89,6 @@ namespace ApiIgrejas.Controllers
             else return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
-        [Authorize]
         [HttpPost("{id}/editar-status/{status}")]
         [HttpGet("getAreas")]
         [SwaggerResponse(200, "Lista de eventos", typeof(Result<bool>))]
@@ -116,7 +112,6 @@ namespace ApiIgrejas.Controllers
             else return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
-        [Authorize]
         [HttpPost("detalhar/{id}")]
         [SwaggerResponse(200, "Busca de eventos", typeof(Result<Evento>))]
         [ProducesResponseType(typeof(Result<Evento>), 200)]
@@ -139,7 +134,6 @@ namespace ApiIgrejas.Controllers
             else return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
-        [Authorize]
         [HttpGet("evento-andamento")]
         [SwaggerResponse(200, "Lista de eventos", typeof(Result<List<Evento>>))]
         [ProducesResponseType(typeof(Result<List<Evento>>), 200)]

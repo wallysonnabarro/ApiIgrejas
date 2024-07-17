@@ -54,7 +54,6 @@ builder.Services.AddCors(options =>
         builder =>
         {
             builder.WithOrigins("https://bracofortedosenhorsiao.azurewebsites.net")
-            //builder.WithOrigins("http://localhost:4200")
                    .AllowAnyHeader()
                    .AllowAnyMethod()
                    .AllowCredentials();
@@ -79,12 +78,13 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+app.UseCors("AllowSpecificOrigin");
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
-app.UseCors("AllowSpecificOrigin");
 
 app.Run();
 
