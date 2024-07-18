@@ -15,7 +15,9 @@ namespace Infra.Data.Interfaces
         Task<Result<Paginacao<UsuarioListDto>>> Paginacao(PageWrapper wrapper, string email);
         Task<Result<Paginacao<UsuarioListaPaginadaDto>>> PaginacaoLista(PageWrapper wrapper, string email);
         Task<Result<bool>> Novo(NovoUsuarioDto dto, string email);
+        Task<Result<bool>> Editar(UsuarioEditarDto dto);
         Task<Result<bool>> RedefinirSenha(LoginDTO dto);
         Task<Result<UsuarioDetalharDto>> UserDetalhe(int id);
+        Task<Result<UsuarioEditarDto>> GetUsuarioEditar(int id);
     }
 }

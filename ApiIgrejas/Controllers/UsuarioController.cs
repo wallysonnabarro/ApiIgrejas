@@ -170,6 +170,28 @@ namespace ApiIgrejas.Controllers
                 return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
 
+        [HttpGet("getEditar/{id}")]
+        [SwaggerResponse(200, "deatlhar", typeof(Result<UsuarioDetalharDto>))]
+        [ProducesResponseType(typeof(Result<UsuarioDetalharDto>), 200)]
+        public async Task<IActionResult> getEditarDetalhar(int id)
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var resultToken = await this._authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var isToken = _authorization.DadosToken(token);
+
+            var result = await _userManager.GetUsuarioEditar(id);
+
+            if (result.Succeeded)
+                return Ok(result);
+            else
+                return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
+        }
 
         [HttpPost("novo")]
         [SwaggerResponse(200, "novo usuário", typeof(Result<Paginacao<UsuarioDto>>))]
@@ -187,6 +209,27 @@ namespace ApiIgrejas.Controllers
             var isToken = _authorization.DadosToken(token);
 
             var result = await _userManager.Novo(dto, isToken.Result.Email!);
+
+            if (result.Succeeded)
+                return Ok(result);
+            else
+                return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
+        }
+
+        [HttpPost("atualizar")]
+        public async Task<IActionResult> Atualizar(UsuarioEditarDto dto)
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var resultToken = await this._authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var isToken = _authorization.DadosToken(token);
+
+            var result = await _userManager.Editar(dto);
 
             if (result.Succeeded)
                 return Ok(result);

@@ -231,7 +231,7 @@ namespace Infra.Data.Respository
         {
             try
             {
-                var contrato = await getContrato(email);
+                var contrato = await getContrato(dto.Email);
 
                 if (contrato.Succeeded)
                 {
@@ -286,6 +286,50 @@ namespace Infra.Data.Respository
             }
         }
 
+        public async Task<Result<bool>> Editar(UsuarioEditarDto dto)
+        {
+            try
+            {
+                var contrato = await _context.Contratos.FirstOrDefaultAsync(x => x.RazaoSocia.Equals(dto.Contrato));
+
+                if (contrato != null)
+                {
+                    var role = await _context.Roles.FirstOrDefaultAsync(x => x.Nome == dto.Perfil);
+
+                    if (role != null)
+                    {
+                        var tribo = await _context.TribosEquipes.FirstOrDefaultAsync(x => x.Nome == dto.Tribo);
+
+                        if (tribo != null)
+                        {
+                            var usuario = await _context.Users.FirstOrDefaultAsync(x => x.Id == dto.Id);
+                            usuario.Cpf = dto.Cpf;
+                            usuario.Contrato = contrato;
+                            usuario.Role = role.Id;
+                            usuario.Nome = dto.Nome;
+                            usuario.UserName = dto.UserName;
+                            usuario.Email = dto.Email;
+                            usuario.TriboEquipe = tribo;
+
+                            await _context.SaveChangesAsync();
+
+                            return Result<bool>.Sucesso(true);
+                        }
+                        else return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "tribo/equipe não localizado.", ocorrencia = "", versao = "V1" } });
+                    }
+                    else return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "perfil não localizado.", ocorrencia = "", versao = "V1" } });
+                }
+                else
+                {
+                    return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Contrato não localizado.", ocorrencia = "", versao = "V1" } });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Result<bool>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "V1" } });
+            }
+        }
+
         public async Task<Result<UsuarioDetalharDto>> UserDetalhe(int id)
         {
             try
@@ -312,6 +356,38 @@ namespace Infra.Data.Respository
             catch (Exception ex)
             {
                 return Result<UsuarioDetalharDto>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "V1" } });
+            }
+        }
+
+        public async Task<Result<UsuarioEditarDto>> GetUsuarioEditar(int id)
+        {
+            try
+            {
+                var usuario = await _context.Users
+                    .Include(x => x.Contrato)
+                    .Include(x => x.TriboEquipe)
+                    .FirstOrDefaultAsync(x => x.Id == id);
+
+                var role = await _context.Roles.FirstOrDefaultAsync(x => x.Id == usuario.Role);
+
+                var detalhe = new UsuarioEditarDto
+                {
+                    Id = usuario.Id,
+                    Contrato = usuario.Contrato.Empresa,
+                    Cpf = usuario.Cpf,
+                    Email = usuario.Email,
+                    Nome = usuario.Nome,
+                    Tribo = usuario.TriboEquipe.Nome,
+                    UserName = usuario.UserName,
+                    Perfil = role.Nome
+                };
+
+                if (detalhe != null) return Result<UsuarioEditarDto>.Sucesso(detalhe);
+                else return Result<UsuarioEditarDto>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = "Usuário não localizado.", ocorrencia = "", versao = "V1" } });
+            }
+            catch (Exception ex)
+            {
+                return Result<UsuarioEditarDto>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "V1" } });
             }
         }
 
