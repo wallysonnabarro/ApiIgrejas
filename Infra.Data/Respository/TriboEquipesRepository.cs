@@ -21,7 +21,11 @@ namespace Infra.Data.Respository
         {
             try
             {
-                var contrato = await getContrato(email);
+                var usuarioContrato = await _db.Users.Include(x => x.Contrato).FirstOrDefaultAsync(x => x.Email.Equals(email));
+
+                if (usuarioContrato == null) return Result<TriboEquipe>.Failed(new List<Erros> { new Erros { mensagem = "Usuário não encontrado." } });
+
+                var contrato = await getContrato(usuarioContrato.Contrato.Id);
 
                 if (contrato.Succeeded)
                 {
@@ -94,7 +98,11 @@ namespace Infra.Data.Respository
 
         public async Task<Result<List<TriboSelectede>>> ListaSelectedAll(string email)
         {
-            var contrato = await getContrato(email);
+            var usuarioContrato = await _db.Users.Include(x => x.Contrato).FirstOrDefaultAsync(x => x.Email.Equals(email));
+
+            if (usuarioContrato == null) return Result<List<TriboSelectede>>.Failed(new List<Erros> { new Erros { mensagem = "Usuário não encontrado." } });
+
+            var contrato = await getContrato(usuarioContrato.Contrato.Id);
 
             if (contrato != null)
             {
@@ -120,7 +128,12 @@ namespace Infra.Data.Respository
 
         public async Task<Result<TriboEquipe>> Novo(TriboNovoDto dto, string email)
         {
-            var contrato = await getContrato(email);
+
+            var usuarioContrato = await _db.Users.Include(x => x.Contrato).FirstOrDefaultAsync(x => x.Email.Equals(email));
+
+            if (usuarioContrato == null) return Result<TriboEquipe>.Failed(new List<Erros> { new Erros { mensagem = "Usuário não encontrado." } });
+
+            var contrato = await getContrato(usuarioContrato.Contrato.Id);
 
             if (contrato.Succeeded)
             {
@@ -150,7 +163,12 @@ namespace Infra.Data.Respository
         {
             try
             {
-                var contrato = await getContrato(email);
+
+                var usuarioContrato = await _db.Users.Include(x => x.Contrato).FirstOrDefaultAsync(x => x.Email.Equals(email));
+
+                if (usuarioContrato == null) return Result<Paginacao<TriboEquipe>>.Failed(new List<Erros> { new Erros { mensagem = "Usuário não encontrado." } });
+
+                var contrato = await getContrato(usuarioContrato.Contrato.Id);
 
                 if (contrato.Succeeded)
                 {
@@ -189,7 +207,7 @@ namespace Infra.Data.Respository
                 .CountAsync();
         }
 
-        private async Task<Result<Contrato>> getContrato(string email)
+        private async Task<Result<Contrato>> getContrato(int email)
         {
             return await _contratoRepository.GetResult(email);
         }

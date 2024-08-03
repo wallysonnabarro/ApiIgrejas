@@ -121,7 +121,12 @@ namespace Infra.Data.Respository
         {
             try
             {
-                var contrato = await getContrato(email);
+
+                var usuarioContrato = await _context.Users.Include(x => x.Contrato).FirstOrDefaultAsync(x => x.Email.Equals(email));
+
+                if (usuarioContrato == null) return Result<Paginacao<UsuarioListDto>>.Failed(new List<Erros> { new Erros { mensagem = "Usuário não encontrado." } });
+
+                var contrato = await getContrato(usuarioContrato.Contrato.Id);
 
                 if (contrato.Succeeded)
                 {
@@ -183,7 +188,11 @@ namespace Infra.Data.Respository
         {
             try
             {
-                var contrato = await getContrato(email);
+                var usuarioContrato = await _context.Users.Include(x => x.Contrato).FirstOrDefaultAsync(x => x.Email.Equals(email));
+
+                if (usuarioContrato == null) return Result<Paginacao<UsuarioListaPaginadaDto>>.Failed(new List<Erros> { new Erros { mensagem = "Usuário não encontrado." } });
+
+                var contrato = await getContrato(usuarioContrato.Contrato.Id);
 
                 if (contrato.Succeeded)
                 {
@@ -222,7 +231,7 @@ namespace Infra.Data.Respository
             }
         }
 
-        private async Task<Result<Contrato>> getContrato(string email)
+        private async Task<Result<Contrato>> getContrato(int email)
         {
             return await _contratoRepository.GetResult(email);
         }
@@ -231,7 +240,7 @@ namespace Infra.Data.Respository
         {
             try
             {
-                var contrato = await getContrato(dto.Email);
+                var contrato = await getContrato(dto.Contrato);
 
                 if (contrato.Succeeded)
                 {

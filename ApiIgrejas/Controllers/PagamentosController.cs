@@ -202,7 +202,7 @@ namespace ApiIgrejas.Controllers
         [HttpPost("registra-lista-lanchonete/{id}")]
         [SwaggerResponse(201, "Registrar pagamentos lanchonete", typeof(Result<string>))]
         [ProducesResponseType(typeof(Result<string>), 201)]
-        public async Task<IActionResult> RegistrarListaLanchonete(int id, List<OfertaEvento> dto)
+        public async Task<IActionResult> RegistrarListaLanchonete(int id, List<LanchoneteDto> dto)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
 

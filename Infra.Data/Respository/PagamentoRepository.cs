@@ -267,7 +267,7 @@ namespace Infra.Data.Respository
                             Receber = s.Sum(x => x.Receber ?? 0),
                             Descontar = s.Sum(x => x.Descontar ?? 0),
                             Total = s.Sum(x => x.Credito ?? 0) + s.Sum(x => x.Debito ?? 0) + s.Sum(x => x.Dinheiro ?? 0) + s.Sum(x => x.CreditoParcelado ?? 0) + s.Sum(x => x.Pix ?? 0) + s.Sum(x => x.Receber ?? 0) + s.Sum(x => x.Descontar ?? 0)
-                        });
+                        }).ToList();
 
                     var pagSaida = await _db.PagamentoSaidas
                         .Include(x => x.Evento)
@@ -328,8 +328,8 @@ namespace Infra.Data.Respository
 
                     List<PagamentosDto> lista = new List<PagamentosDto>();
 
-                    lista.Add(primeiro.First());
-
+                    if (primeiro.Count > 0)
+                        lista.Add(primeiro.First());
                     if (pagSaida.Count > 0)
                         lista.Add(pagSaida.First());
                     if (oferta.Count > 0)
@@ -514,7 +514,7 @@ namespace Infra.Data.Respository
         }
 
 
-        public async Task<Result<string>> RegistrarListaOfertalanchonete(List<OfertaEvento> dto, string EmailUser, int id)
+        public async Task<Result<string>> RegistrarListaOfertalanchonete(List<LanchoneteDto> dto, string EmailUser, int id)
         {
             try
             {
@@ -534,7 +534,8 @@ namespace Infra.Data.Respository
                             Forma = item.Forma,
                             Valor = item.Valor,
                             Evento = evento,
-                            Usuario = user
+                            Usuario = user,
+                            Descricao = item.Descricao
                         };
 
                         pagamentos.Add(saida);
