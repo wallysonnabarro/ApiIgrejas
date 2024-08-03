@@ -8,7 +8,6 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace ApiIgrejas.Controllers
 {
-    [Authorize(Roles = "DESENVOLVEDOR")]
     [Route("api/[controller]")]
     [ApiController]
     public class ContratoController : ControllerBase
