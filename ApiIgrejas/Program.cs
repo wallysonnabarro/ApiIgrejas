@@ -24,6 +24,8 @@ builder.Services.AddDbContext<ContextDb>(options =>
     options.UseSqlServer(connection);
 });
 
+builder.Services.AddHttpClient();
+
 builder.Services.AddDbContext<ContextDb>(options =>
                     options.UseSqlServer(
                     builder.Configuration.GetConnectionString(connection!)), ServiceLifetime.Scoped);
