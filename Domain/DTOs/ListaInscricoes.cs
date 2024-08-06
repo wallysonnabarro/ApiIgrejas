@@ -4,6 +4,7 @@
     {
         public int Id { get; set; }
         public required string Nome { get; set; }
+        public string Tribo { get; set; }
         public int Sexo { get; set; }
         public int Idade { get; set; }
         public int Confirmacao { get; set; }

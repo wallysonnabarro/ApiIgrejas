@@ -46,13 +46,17 @@ namespace Infra.Data.Respository
             try
             {
                 var page = parametros.Skip == 0 ? 0 : parametros.Skip - 1;
-                var lista = await _db.FichasLider.Include(x => x.Evento).Where(x => x.Evento.Id == parametros.Evento && (transferencia == true ? x.Confirmacao == 0 : x.Confirmacao != 3))
+                var lista = await _db.FichasLider
+                    .Include(x => x.Evento)
+                    .Include(x => x.Tribo)
+                    .Where(x => x.Evento.Id == parametros.Evento && (transferencia == true ? x.Confirmacao == 0 : x.Confirmacao != 3))
                     .Select(x => new ListaInscricoes
                     {
                         Id = x.Id,
                         Nome = x.Nome,
                         Confirmacao = x.Confirmacao,
                         Sexo = x.Sexo,
+                        Tribo = x.Tribo.Nome
                     }).ToListAsync();
 
                 foreach (var item in lista)
@@ -99,11 +103,14 @@ namespace Infra.Data.Respository
             try
             {
                 var page = parametros.Skip == 0 ? 0 : parametros.Skip - 1;
-                var lista = await _db.FichasConectados.Include(x => x.Evento).Where(x => x.Evento.Id == parametros.Evento && (transferencia == true ? x.Confirmacao == 0 : x.Confirmacao != 3))
+                var lista = await _db.FichasConectados
+                    .Include(x => x.Tribo)
+                    .Include(x => x.Evento).Where(x => x.Evento.Id == parametros.Evento && (transferencia == true ? x.Confirmacao == 0 : x.Confirmacao != 3))
                     .Select(x => new ListaInscricoes
                     {
                         Id = x.Id,
                         Nome = x.Nome,
+                        Tribo = x.Tribo.Nome,
                         Confirmacao = x.Confirmacao,
                         Sexo = x.Sexo,
                         Idade = new Datas().ConvertData(x.Nascimento),
