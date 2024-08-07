@@ -77,5 +77,25 @@ namespace ApiIgrejas.Controllers
                 return Ok(result);
             else return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
         }
+
+        [HttpPost("lista-search")]
+        [SwaggerResponse(200, "Buscar ficha", typeof(Result<FichaPagamento>))]
+        [ProducesResponseType(typeof(Result<FichaPagamento>), 200)]
+        public async Task<IActionResult> listaSearch(FichaParametros parametros)
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (token == null) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var resultToken = await this.authorization.IsAuthTokenValid(token);
+
+            if (!resultToken.IdentidadeResultado!.Succeeded) return Unauthorized(new { mensagem = "Acesso não autorizado" });
+
+            var result = await _fichaRepository.listaSearch(parametros);
+
+            if (result.Succeeded)
+                return Ok(result);
+            else return BadRequest(new { mensagem = result.Errors.Min(x => x.mensagem) });
+        }
     }
 }

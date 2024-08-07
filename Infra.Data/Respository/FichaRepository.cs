@@ -105,7 +105,9 @@ namespace Infra.Data.Respository
                 var page = parametros.Skip == 0 ? 0 : parametros.Skip - 1;
                 var lista = await _db.FichasConectados
                     .Include(x => x.Tribo)
-                    .Include(x => x.Evento).Where(x => x.Evento.Id == parametros.Evento && (transferencia == true ? x.Confirmacao == 0 : x.Confirmacao != 3))
+                    .Include(x => x.Evento).Where(x => x.Evento.Id == parametros.Evento 
+                    //&& (transferencia == true ? x.Confirmacao == 0 : x.Confirmacao != 3)
+                    )
                     .Select(x => new ListaInscricoes
                     {
                         Id = x.Id,
@@ -113,7 +115,7 @@ namespace Infra.Data.Respository
                         Tribo = x.Tribo.Nome,
                         Confirmacao = x.Confirmacao,
                         Sexo = x.Sexo,
-                        Idade = new Datas().ConvertData(x.Nascimento),
+                        Idade = new Datas().ConvertData(x.Nascimento)
                     }).ToListAsync();
 
                 foreach (var item in lista)
@@ -244,6 +246,117 @@ namespace Infra.Data.Respository
                 {
                     return await Consumidores(parametros, true);
                 }
+            }
+            catch (Exception ex)
+            {
+                return Result<FichaPagamento>.Failed(new List<Erros> { new Erros { codigo = "", mensagem = ex.Message, ocorrencia = "", versao = "" } });
+            }
+        }
+
+        public async Task<Result<FichaPagamento>> listaSearch(FichaParametros parametros)
+        {
+            try
+            {
+                if (parametros.Tipo == 1)//Voluntários
+                {
+                    var page = parametros.Skip == 0 ? 0 : parametros.Skip - 1;
+                    var lista = await _db.FichasLider
+                        .Include(x => x.Evento)
+                        .Include(x => x.Tribo)
+                        .Where(x => x.Evento.Id == parametros.Evento)
+                        .Select(x => new ListaInscricoes
+                        {
+                            Id = x.Id,
+                            Nome = x.Nome,
+                            Confirmacao = x.Confirmacao,
+                            Sexo = x.Sexo,
+                            Tribo = x.Tribo.Nome
+                        }).ToListAsync();
+
+                    foreach (var item in lista)
+                    {
+                        var pagamento = await _db.Pagamentos
+                            .Include(x => x.Voluntario)
+                            .Include(x => x.Evento)
+                            .FirstOrDefaultAsync(x => x.Voluntario!.Id == item.Id && x.Evento.Id == parametros.Evento);
+
+                        item.Pago = pagamento == null ? 0 : (pagamento!.Pix ?? 0) + (pagamento.Credito ?? 0) + (pagamento.CreditoParcelado ?? 0) + (pagamento.Debito ?? 0) + (pagamento.Dinheiro ?? 0) + (pagamento.Descontar ?? 0);
+                        item.Receber = pagamento == null ? 0 : pagamento.Receber;
+                    }
+
+                    var fichas = new FichaPagamento
+                    {
+                        Count = lista.Count,
+                        Dados = lista,
+                        PageIndex = parametros.Skip == 0 ? 1 : parametros.Skip,
+                        PageSize = parametros.PageSize,
+                        Feminino = new DadosCard
+                        {
+                            TotalConfirmado = lista.Where(x => x.Sexo == 2 && x.Confirmacao == 1).Count(),
+                            TotalNaoConfirmado = lista.Where(x => x.Sexo == 2 && x.Confirmacao == 0).Count(),
+                            TotalGeral = lista.Where(x => x.Sexo == 2).Count()
+                        },
+                        Masculino = new DadosCard
+                        {
+                            TotalConfirmado = lista.Where(x => x.Sexo == 1 && x.Confirmacao == 1).Count(),
+                            TotalNaoConfirmado = lista.Where(x => x.Sexo == 1 && x.Confirmacao == 0).Count(),
+                            TotalGeral = lista.Where(x => x.Sexo == 1).Count()
+                        },
+                    };
+
+                    return Result<FichaPagamento>.Sucesso(fichas);
+                }
+                else //Consumidores
+                {
+                    var page = parametros.Skip == 0 ? 0 : parametros.Skip - 1;
+                    var lista = await _db.FichasConectados
+                        .Include(x => x.Tribo)
+                        .Include(x => x.Evento).Where(x => x.Evento.Id == parametros.Evento
+                        //&& (transferencia == true ? x.Confirmacao == 0 : x.Confirmacao != 3)
+                        )
+                        .Select(x => new ListaInscricoes
+                        {
+                            Id = x.Id,
+                            Nome = x.Nome,
+                            Tribo = x.Tribo.Nome,
+                            Confirmacao = x.Confirmacao,
+                            Sexo = x.Sexo,
+                            Idade = new Datas().ConvertData(x.Nascimento)
+                        }).ToListAsync();
+
+                    foreach (var item in lista)
+                    {
+                        var pagamento = await _db.Pagamentos
+                            .Include(x => x.FichaConsumidor)
+                            .Include(x => x.Evento)
+                            .FirstOrDefaultAsync(x => x.FichaConsumidor!.Id == item.Id && x.Evento.Id == parametros.Evento);
+
+                        item.Pago = pagamento == null ? 0 : (pagamento!.Pix ?? 0) + (pagamento.Credito ?? 0) + (pagamento.CreditoParcelado ?? 0) + (pagamento.Debito ?? 0) + (pagamento.Dinheiro ?? 0) + (pagamento.Descontar ?? 0);
+                        item.Receber = pagamento == null ? 0 : pagamento.Receber;
+                    }
+
+                    var fichas = new FichaPagamento
+                    {
+                        Count = lista.Count,
+                        Dados = lista,
+                        PageIndex = parametros.Skip == 0 ? 1 : parametros.Skip,
+                        PageSize = parametros.PageSize,
+                        Feminino = new DadosCard
+                        {
+                            TotalConfirmado = lista.Where(x => x.Sexo == 2 && x.Confirmacao == 1).Count(),
+                            TotalNaoConfirmado = lista.Where(x => x.Sexo == 2 && x.Confirmacao == 0).Count(),
+                            TotalGeral = lista.Where(x => x.Sexo == 2).Count()
+                        },
+                        Masculino = new DadosCard
+                        {
+                            TotalConfirmado = lista.Where(x => x.Sexo == 1 && x.Confirmacao == 1).Count(),
+                            TotalNaoConfirmado = lista.Where(x => x.Sexo == 1 && x.Confirmacao == 0).Count(),
+                            TotalGeral = lista.Where(x => x.Sexo == 1).Count()
+                        },
+                    };
+
+                    return Result<FichaPagamento>.Sucesso(fichas);
+                }                
             }
             catch (Exception ex)
             {
